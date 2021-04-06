@@ -17,7 +17,7 @@ import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content
 *エラーが出た場合: pip==○○○の部分の番号をインストールしたpipのバージョンにしてから実行してください。*
 
 ## トラブルシューティング
-*・pipのバージョンがわからない: Python Modules -> site-packages -> pipと開き`__init_　_.py`内の__version__ = ""内に書いてあります。*
+*・pipのバージョンがわからない: Python Modules -> site-packages -> pipと開き`__init__.py`内の__version__ = ""内に書いてあります。*
 
 *・インストールしたモジュールのコマンドの配置場所がわからない: Python Modules -> site-packages -> binの中に入っています。*
 
