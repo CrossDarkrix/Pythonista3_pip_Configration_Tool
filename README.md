@@ -2,7 +2,7 @@
 *Pythonista3でStashとは別でpipを使いたい人のためのツール群*
 
 ## Installation
-*pip-configration-tool.pyを実行後、*
+*`pip-configration-tool.py`を実行後、*
 
 ```Python
 import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content) 
@@ -12,7 +12,7 @@ import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content
 
 *実行後Pythonistaを再起動して下さい。*
 
-*再起動後、pipTerminal.pyを実行してエラーがなければ完成。*
+*再起動後`pipTerminal.py`を実行してエラーがなければ完成。*
 
 *エラーが出た場合: pip==○○○の部分の番号をインストールしたpipのバージョンにしてから実行してください。*
 
