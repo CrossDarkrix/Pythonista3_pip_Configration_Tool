@@ -1,15 +1,15 @@
-# EASY-INSTALL-ENTRY-SCRIPT: 'pip==20.1.1','console_scripts','pip'
 # -*- coding: utf-8 -*-
-__requires__ = 'pip==21.0.1'
 
-import sys
+import sys, os
 from pkg_resources import load_entry_point
+
+pip_version = open(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'pip', '__init__.py'),'r', encoding='utf-8').read().replace('\n\n','\n').split('\n')[1].replace('__version__ = ', '').replace('"','')
 
 while True:
 	try:
 		sys.argv[1:] = input('Pythonista3: ~# pip ').split(' ')
-		load_entry_point('pip==21.0.1', 'console_scripts', 'pip')()
+		load_entry_point('pip=={Version}'.format(Version=pip_version), 'console_scripts', 'pip')()
 	except KeyboardInterrupt:
-		sys.exit()
+		break
 	except:
 		pass
