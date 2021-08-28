@@ -252,7 +252,7 @@ def Symbolic_Link(Src, Dest):
 	try:
 		os.symlink(Src, Dest)
 	except:
-		print(Src, Dest)
+		print('Err: No Created Symlink')
 
 def chdirs(Location):
 	os.chdir(Location)
@@ -297,83 +297,102 @@ def copyFiles(FileName, dest):
 		pass
 
 def main():
-	while True:
-		input_args = input('PyTerminal~# ').split(' ')
-		if input_args[0] == 'pip':
-			pip_Terminal(input_args[1:])
-		elif input_args[0] == 'ls':
-			try:
-				if input_args[1] == '-l':
-					listdir('long', os.getcwd())
-				else:
+	try:
+		while True:
+			input_args = input('PyTerminal~# ').split(' ')
+			if input_args[0] == 'pip':
+				pip_Terminal(input_args[1:])
+			elif input_args[0] == 'ls':
+				try:
+					if input_args[1] == '-l':
+						listdir('long', os.getcwd())
+					else:
+						listdir(None, None)
+				except:
 					listdir(None, None)
-			except:
-				listdir(None, None)
-		elif input_args[0] == 'ln':
-			if input_args[1] == '-s':
-				if not '/' in input_args[2] and not '/' in input_args[3]:
-					Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
-				elif not '/' in input_args[2]:
-					Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
-			elif input_args[1][:1] == '-':
-				if not '/' in input_args[2] and not '/' in input_args[3]:
-					Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
-				elif not '/' in input_args[2]:
-					Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
-			if not '/' in input_args[1] and not '/' in input_args[2]:
-				Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), os.path.join(os.getcwd(), input_args[2]))
-			elif not '/' in input_args[1]:
-				Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), input_args[2])
-			else:
-				Symbolic_Link(input_args[1], input_args[2])
-		elif input_args[0] == 'cd':
-			try:
-				if input_args[1] == '':
-					chdirs(HOME_direct)
+			elif input_args[0] == 'la':
+				try:
+					if input_args[1] == '-l':
+						listdir('long', os.getcwd())
+					else:
+						listdir(None, None)
+				except:
+					listdir(None, None)
+			elif input_args[0] == 'ln':
+				if input_args[1] == '-s':
+					if not '/' in input_args[2] and not '/' in input_args[3]:
+						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
+					elif not '/' in input_args[2]:
+						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
+				elif input_args[1][:1] == '-':
+					if not '/' in input_args[2] and not '/' in input_args[3]:
+						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
+					elif not '/' in input_args[2]:
+						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
+				if not '/' in input_args[1] and not '/' in input_args[2]:
+					Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), os.path.join(os.getcwd(), input_args[2]))
+				elif not '/' in input_args[1]:
+					Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), input_args[2])
 				else:
-					chdirs(input_args[1])
-			except IndexError:
-				chdirs(HOME_direct)
-		elif input_args[0] == 'pwd':
-			try:
-				pwd = os.getcwd()
-			except Exception as pwdErr:
-				pwd = pwdErr
-			print(pwd)
-		elif input_args[0] == 'echo':
-			try:
-				if input_args[1] == '>':
-					create_empty_file(input_args[2])
-				if input_args[1][:1] == '$':
-					env_data = os.getenv(input_args[1].replace('$', ''))
-					if not env_data is None:
-						print(env_data)
+					Symbolic_Link(input_args[1], input_args[2])
+			elif input_args[0] == 'cd':
+				try:
+					if input_args[1] == '':
+						chdirs(HOME_direct)
+					else:
+						chdirs(input_args[1])
+				except IndexError:
+					chdirs(HOME_direct)
+			elif input_args[0] == 'pwd':
+				try:
+					pwd = os.getcwd()
+				except Exception as pwdErr:
+					pwd = pwdErr
+				print(pwd)
+			elif input_args[0] == 'echo':
+				try:
+					if input_args[1] == '>':
+						create_empty_file(input_args[2])
+					if input_args[1][:1] == '$':
+						env_data = os.getenv(input_args[1].replace('$', ''))
+						if not env_data is None:
+							print(env_data)
+						else:
+							pass
+					if not input_args[1] == '' and input_args[2] == '>':
+						create_file(input_args[3], input_args[1])
+					elif not input_args[1] == '':
+						print(input_args[1])
+				except:
+					if not input_args[1] =='':
+						print(input_args[1])
 					else:
 						pass
-				if not input_args[1] == '' and input_args[2] == '>':
-					create_file(input_args[3], input_args[1])
-				elif not input_args[1] == '':
-					print(input_args[1])
-			except:
-				if not input_args[1] =='':
-					print(input_args[1])
+			elif input_args[0] == 'mkdir':
+				if input_args[1] == '-p':
+					os.makedirs(input_args[2], exist_ok=True)
 				else:
+					os.makedirs(input_args[1], exist_ok=True)
+			elif input_args[0] == 'mv':
+				try:
+					shutil.move(input_args[1], input_args[2])
+				except IndexError:
 					pass
-		elif input_args[0] == 'mkdir':
-			if input_args[1] == '-p':
-				os.makedirs(input_args[2], exist_ok=True)
-			else:
-				os.makedirs(input_args[1], exist_ok=True)
-		elif input_args[0] == 'mv':
-			try:
-				shutil.move(input_args[1], input_args[2])
-			except IndexError:
-				pass
-			except Exception as Err:
-				print(Err)
-		elif input_args[0] == 'rm':
-			if input_args[1][:1] == '-':
-				if input_args[2][:1] == '.':
+				except Exception as Err:
+					print(Err)
+			elif input_args[0] == 'rm':
+				if input_args[1][:1] == '-':
+					if input_args[2][:1] == '.':
+						try:
+							for l in range(len(os.listdir())):
+								delete_Files(os.listdir()[l])
+						except:
+							try:
+								for l in range(len(os.listdir())):
+									delete_Files(os.listdir()[l])
+							except:
+								pass
+				elif input_args[1][:1] == '.':
 					try:
 						for l in range(len(os.listdir())):
 							delete_Files(os.listdir()[l])
@@ -383,36 +402,29 @@ def main():
 								delete_Files(os.listdir()[l])
 						except:
 							pass
-			elif input_args[1][:1] == '.':
-				try:
-					for l in range(len(os.listdir())):
-						delete_Files(os.listdir()[l])
-				except:
-					try:
-						for l in range(len(os.listdir())):
-							delete_Files(os.listdir()[l])
-					except:
-						pass
-			else:
-					delete_Files(input_args[1])
-		elif input_args[0] == 'cat':
-			print(readfile(input_args[1]))
-		elif input_args[0] == 'touch':
-			create_empty_file(input_args[1])
-		elif input_args[0] == 'cp':
-			if not '/' in input_args[2]:
-				copyFiles(os.path.join(os.getcwd(),input_args[1]),os.path.join(os.getcwd(), input_args[2]))
-			else:
-				copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
-		elif input_args[0] == 'help':
-			print('help, cat, cd, echo, ls, ln, mkdir, rm,  pip, exit')
-		elif input_args[0] == 'clear':
-			clear()
-		elif input_args[0] == 'cls':
-			clear()
-		elif input_args[0] == 'exit':
-			clear()
-			sys.exit(0)
+				else:
+						delete_Files(input_args[1])
+			elif input_args[0] == 'cat':
+				print(readfile(input_args[1]))
+			elif input_args[0] == 'touch':
+				create_empty_file(input_args[1])
+			elif input_args[0] == 'cp':
+				if not '/' in input_args[2]:
+					copyFiles(os.path.join(os.getcwd(),input_args[1]),os.path.join(os.getcwd(), input_args[2]))
+				else:
+					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
+			elif input_args[0] == 'help':
+				print('help, cat, cd, echo, la, ls, ln, mkdir, rm,  pip, exit')
+			elif input_args[0] == 'clear':
+				clear()
+			elif input_args[0] == 'cls':
+				clear()
+			elif input_args[0] == 'exit':
+				clear()
+				sys.exit(0)
+	except KeyboardInterrupt:
+		clear()
+		sys.exit(0)
 
 if __name__ == '__main__':
 	main()
