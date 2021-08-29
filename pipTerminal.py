@@ -266,8 +266,8 @@ def run_other_cmd(cmd_name, args):
 		_read = open(fileNa, 'r', encoding='utf-8').read()
 		sys.argv[1:] = args
 		exec(_read)
-	except:
-		pass
+	except Exception as E:
+		print('ERROR: {ERR}'.format(ERR=E))
 
 def Symbolic_Link(Src, Dest):
 	try:
@@ -281,8 +281,8 @@ def Symbolic_Link(Src, Dest):
 		pass
 	try:
 		os.symlink(Src, Dest)
-	except:
-		print('Err: No Created Symlink')
+	except Exception as E:
+		print('Error: {ERR}.'.format(ERR=E))
 
 def chdirs(Location):
 	os.chdir(Location)
@@ -326,6 +326,9 @@ def main():
 		while True:
 			input_args = input('PyTerminal~# ').split(' ')
 			if input_args[0] == 'ls':
+				if input_args[1] == '-h':
+					print('ls -l or ls.')
+					continue
 				try:
 					if input_args[1] == '-l':
 						listdir('long', os.getcwd())
@@ -334,6 +337,9 @@ def main():
 				except:
 					listdir(None, None)
 			elif input_args[0] == 'la':
+				if input_args[1] == '-h':
+					print('la -l or la.')
+					continue
 				try:
 					if input_args[1] == '-l':
 						listdir('long', os.getcwd())
@@ -342,22 +348,28 @@ def main():
 				except:
 					listdir(None, None)
 			elif input_args[0] == 'ln':
-				if input_args[1] == '-s':
-					if not '/' in input_args[2] and not '/' in input_args[3]:
-						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
-					elif not '/' in input_args[2]:
-						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
-				elif input_args[1][:1] == '-':
-					if not '/' in input_args[2] and not '/' in input_args[3]:
-						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
-					elif not '/' in input_args[2]:
-						Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
-				if not '/' in input_args[1] and not '/' in input_args[2]:
-					Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), os.path.join(os.getcwd(), input_args[2]))
-				elif not '/' in input_args[1]:
-					Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), input_args[2])
-				else:
-					Symbolic_Link(input_args[1], input_args[2])
+				if input_args[1] == '-h':
+					print('ln -s {source} {desert}')
+					continue
+				try:
+					if input_args[1] == '-s':
+						if not '/' in input_args[2] and not '/' in input_args[3]:
+							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
+						elif not '/' in input_args[2]:
+							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
+					elif input_args[1][:1] == '-':
+						if not '/' in input_args[2] and not '/' in input_args[3]:
+							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
+						elif not '/' in input_args[2]:
+							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
+					if not '/' in input_args[1] and not '/' in input_args[2]:
+						Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), os.path.join(os.getcwd(), input_args[2]))
+					elif not '/' in input_args[1]:
+						Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), input_args[2])
+					else:
+						Symbolic_Link(input_args[1], input_args[2])
+				except:
+					pass
 			elif input_args[0] == 'cd':
 				try:
 					if input_args[1] == '':
@@ -373,6 +385,9 @@ def main():
 					pwd = pwdErr
 				print(pwd)
 			elif input_args[0] == 'echo':
+				if input_args[1] == '-h':
+					print('Create File: echo > FileName\nPrint ENV: echo $env\nPrint: echo PrintWord')
+					continue
 				try:
 					if input_args[1] == '>':
 						create_empty_file(input_args[2])
@@ -392,10 +407,15 @@ def main():
 					else:
 						pass
 			elif input_args[0] == 'mkdir':
+				if input_args[1] == '-h':
+					print('Move File or Directory:\nmv file1 File2\nmv File1 Directory1\nmv Directory1 Directory2')
+					continue
 				if input_args[1] == '-p':
 					os.makedirs(input_args[2], exist_ok=True)
 				else:
 					os.makedirs(input_args[1], exist_ok=True)
+				if input_args[1] == '-h':
+					print('mkdir -p dir/dir or mkdir dir')
 			elif input_args[0] == 'mv':
 				try:
 					shutil.move(input_args[1], input_args[2])
@@ -404,6 +424,9 @@ def main():
 				except Exception as Err:
 					print(Err)
 			elif input_args[0] == 'rm':
+				if input_args[1] == '-h':
+					print('Delete File or Directory: rm FileName.')
+					continue
 				if input_args[1][:1] == '-':
 					if input_args[2][:1] == '.':
 						try:
@@ -428,10 +451,19 @@ def main():
 				else:
 						delete_Files(input_args[1])
 			elif input_args[0] == 'cat':
+				if input_args[1] == '-h':
+					print('cat File')
+					continue
 				print(readfile(input_args[1]))
 			elif input_args[0] == 'touch':
+				if input_args[1] == '-h':
+					print('touch FileName.')
+					continue
 				create_empty_file(input_args[1])
 			elif input_args[0] == 'cp':
+				if input_args[1] == '-h':
+					print('copy file: cp file1 file2 or cp Dir1 Dir2')
+					continue
 				if not '/' in input_args[2]:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]),os.path.join(os.getcwd(), input_args[2]))
 				else:
@@ -443,7 +475,6 @@ def main():
 			elif input_args[0] == 'cls':
 				clear()
 			elif input_args[0] == 'exit':
-				clear()
 				sys.exit(0)
 			else:
 				run_other_cmd(input_args[0], input_args[1:])
