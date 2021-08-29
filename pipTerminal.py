@@ -476,8 +476,8 @@ def main():
 					if input_args[1] == '-h':
 						print('cat File')
 						continue
-					except:
-						continue
+				except:
+					continue
 				print(readfile(input_args[1]))
 			elif input_args[0] == 'touch':
 				try:
