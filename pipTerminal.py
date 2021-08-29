@@ -250,7 +250,14 @@ def listdir(arg, pwd):
 			print(E)
 
 def list_other_cmd():
-	return ', '.join(os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')))
+	list = os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'))
+	for d in range(len(list)):
+		try:
+			if os.path.isdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin', list[d])):
+				del list[d]
+		except:
+			pass
+	return ', '.join(list)
 
 def run_other_cmd(cmd_name, args):
 	try:
@@ -291,12 +298,6 @@ def create_file(Fname, Data):
 	with open(Fname, 'w', encoding='utf-8') as f:
 		f.write(Data)
 
-def pip_Terminal(pip_args):
-	pip_version = open(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'pip', '__init__.py'),'r', encoding='utf-8').read().replace('\n\n','\n').split('\n')[1].replace('__version__ = ', '').replace('"','')
-
-	sys.argv[1:] = pip_args
-	load_entry_point('pip=={Version}'.format(Version=pip_version), 'console_scripts', 'pip')()
-
 def delete_Files(Name):
 	try:
 		if os.path.isfile(os.path.join(os.getcwd(), Name)):
@@ -324,9 +325,7 @@ def main():
 	try:
 		while True:
 			input_args = input('PyTerminal~# ').split(' ')
-			if input_args[0] == 'pip':
-				pip_Terminal(input_args[1:])
-			elif input_args[0] == 'ls':
+			if input_args[0] == 'ls':
 				try:
 					if input_args[1] == '-l':
 						listdir('long', os.getcwd())
@@ -438,7 +437,7 @@ def main():
 				else:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
 			elif input_args[0] == 'help':
-				print('help, cat, cd, echo, la, ls, ln, mkdir, rm,  pip, exit, ' + list_other_cmd())
+				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, exit, ' + list_other_cmd())
 			elif input_args[0] == 'clear':
 				clear()
 			elif input_args[0] == 'cls':
