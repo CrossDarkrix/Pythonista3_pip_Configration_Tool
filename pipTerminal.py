@@ -265,7 +265,10 @@ def run_other_cmd(cmd_name, args):
 		fileNa = os.path.join(cmd_bin, cmd_name)
 		_read = open(fileNa, 'r', encoding='utf-8').read()
 		sys.argv[1:] = args
-		exec(_read)
+		try:
+			exec(_read)
+		except:
+			pass
 	except Exception as E:
 		print('ERROR: {ERR}'.format(ERR=E))
 
