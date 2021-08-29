@@ -1,9 +1,19 @@
 ﻿#!python3
-import os, requests, sys, console, shutil, time
+import console, os, requests, shutil, sys, time
 from pkg_resources import load_entry_point
 from console import set_color as setColor
 
 HOME_direct = os.getcwd()
+
+def init():
+	try:
+		os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
+		opdic = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin')
+		files = os.listdir(opdic)
+		for f in range(len(files)):
+			shutil.move(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin', files[f]), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'))
+	except:
+		pass
 
 def detect_file(file):
 	if file.split('.')[-1].lower() == 'py':
@@ -239,6 +249,19 @@ def listdir(arg, pwd):
 		except Exception as E:
 			print(E)
 
+def list_other_cmd():
+	return ', '.join(os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')))
+
+def run_other_cmd(cmd_name, args):
+	try:
+		cmd_bin = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')
+		fileNa = os.path.join(cmd_bin, cmd_name)
+		_read = open(fileNa, 'r', encoding='utf-8').read()
+		sys.argv[1:] = args
+		exec(_read)
+	except:
+		pass
+
 def Symbolic_Link(Src, Dest):
 	try:
 		if os.path.isfile(Dest):
@@ -297,6 +320,7 @@ def copyFiles(FileName, dest):
 		pass
 
 def main():
+	init()
 	try:
 		while True:
 			input_args = input('PyTerminal~# ').split(' ')
@@ -414,7 +438,7 @@ def main():
 				else:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
 			elif input_args[0] == 'help':
-				print('help, cat, cd, echo, la, ls, ln, mkdir, rm,  pip, exit')
+				print('help, cat, cd, echo, la, ls, ln, mkdir, rm,  pip, exit, ' + list_other_cmd())
 			elif input_args[0] == 'clear':
 				clear()
 			elif input_args[0] == 'cls':
@@ -422,8 +446,9 @@ def main():
 			elif input_args[0] == 'exit':
 				clear()
 				sys.exit(0)
+			else:
+				run_other_cmd(input_args[0], input_args[1:])
 	except KeyboardInterrupt:
-		clear()
 		sys.exit(0)
 
 if __name__ == '__main__':
