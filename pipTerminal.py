@@ -2,6 +2,7 @@
 import console, os, requests, shutil, sys, time
 from pkg_resources import load_entry_point
 from console import set_color as setColor
+from six.moves.urllib.request import urlopen
 
 HOME_direct = os.getcwd()
 
@@ -14,6 +15,41 @@ def init():
 			shutil.move(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin', files[f]), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'))
 	except:
 		pass
+
+def logo():
+	clear()
+	setColor(255, 0, 0)
+	return "- PythonTerminal v1.0 on Python3.6.3 -\n\nCheck can be used command: help.\n"
+
+def _help(lif):
+	if lif == 'ln':
+		return 'Create Symbolic Link:\nln -s {Source} {Target}.'
+	if lif == 'mv':
+		return 'Move File or Directory:\nmv file1 File2\nmv File1 Directory1\nmv Directory1 Directory2.'
+	if lif == 'ls':
+		return 'List Up File and Directory:\nls -l or ls.'
+	if lif == 'la':
+		return 'List Up File and Directory:\nla -l or ls.'
+	if lif == 'echo':
+		return 'Print and Create:\nCreate File: echo > FileName\nPrint ENV: echo $env\nPrint: echo PrintWord.'
+	if lif == 'mkdir':
+		return 'Create Directory:\nmkdir -p dir/dir or mkdir dir.'
+	if lif == 'mv':
+		return 'Move File or Directory:\nmv file1 File2\nmv File1 Directory1\nmv Directory1 Directory2.'
+	if lif == 'pwd':
+		return 'View Current Directory Path:\n pwd.'
+	if lif == 'cd':
+		return 'Change Directory:\n cd {Directory}.'
+	if lif == 'rm':
+		return 'Delete File or Directory: rm FileName.'
+	if lif == 'cat':
+		return 'Read File:\n cat {FileName}.'
+	if lif == 'touch':
+		return 'Create Empty File:\ntouch {FileName}.'
+	if lif == 'cp':
+		return 'Copy and Overwrite File:\ncp {file1} {file2} or cp {Dir1} {Dir2}.'
+	if lif == 'wget':
+		return 'Download File: wget {URL}.'
 
 def detect_file(file):
 	if file.split('.')[-1].lower() == 'py':
@@ -267,7 +303,7 @@ def run_other_cmd(cmd_name, args):
 		sys.argv[1:] = args
 		try:
 			exec(_read)
-		except:
+		except SystemExit:
 			pass
 	except Exception as E:
 		print('ERROR: {ERR}'.format(ERR=E))
@@ -322,16 +358,40 @@ def copyFiles(FileName, dest):
 			shutil.copytree(FileName, dest)
 	except Exception as e:
 		pass
+def wget(URL):
+	try:
+		output_fileName = URL.split('/')[-1]
+		ur = urlopen(URL)
+		md = ur.info()
+		try:
+			fs = int(md["Content-Length"])
+		except (IndexError, ValueError, TypeError):
+			fs = 0
+		print("Save as: {File} ".format(File=output_fileName))
+		print("({Size} bytes)".format(Size=fs if fs else "???"))
+		with open(output_fileName, 'wb') as f:
+			fs_dl = 0.0
+			blsz = 8192
+			while True:
+				_b = ur.read(blsz)
+				if not _b:
+					break
+				fs_dl += len(_b)
+				f.write(_b)
+	except Exception:
+		print('Unknow Error, URL: {}'.format(URL))
 
 def main():
+	print(logo())
+	setColor()
 	init()
 	try:
 		while True:
-			input_args = input('PyTerminal~# ').split(' ')
+			input_args = input('Pythonista3:~# ').split(' ')
 			if input_args[0] == 'ls':
 				try:
 					if input_args[1] == '-h':
-						print('ls -l or ls.')
+						print(_help('ls'))
 						continue
 				except:
 					pass
@@ -345,7 +405,7 @@ def main():
 			elif input_args[0] == 'la':
 				try:
 					if input_args[1] == '-h':
-						print('la -l or la.')
+						print(_help('la'))
 						continue
 				except:
 					pass
@@ -359,7 +419,7 @@ def main():
 			elif input_args[0] == 'ln':
 				try:
 					if input_args[1] == '-h':
-						print('ln -s {source} {desert}')
+						print(_help('ln'))
 						continue
 				except:
 					continue
@@ -384,6 +444,12 @@ def main():
 					pass
 			elif input_args[0] == 'cd':
 				try:
+					if input_args[1] == '-h':
+						print(_help('cd'))
+						continue
+				except:
+					continue
+				try:
 					if input_args[1] == '':
 						chdirs(HOME_direct)
 					else:
@@ -392,6 +458,12 @@ def main():
 					chdirs(HOME_direct)
 			elif input_args[0] == 'pwd':
 				try:
+					if input_args[1] == '-h':
+						print(_help('pwd'))
+						continue
+				except:
+					continue
+				try:
 					pwd = os.getcwd()
 				except Exception as pwdErr:
 					pwd = pwdErr
@@ -399,7 +471,7 @@ def main():
 			elif input_args[0] == 'echo':
 				try:
 					if input_args[1] == '-h':
-						print('Create File: echo > FileName\nPrint ENV: echo $env\nPrint: echo PrintWord')
+						print(_help('echo'))
 						continue
 				except:
 					continue
@@ -424,7 +496,8 @@ def main():
 			elif input_args[0] == 'mkdir':
 				try:
 					if input_args[1] == '-h':
-						print('mkdir -p dir/dir or mkdir dir')
+						print(_help('mkdir'))
+						continue
 				except:
 						continue
 				if input_args[1] == '-p':
@@ -434,7 +507,7 @@ def main():
 			elif input_args[0] == 'mv':
 				try:
 					if input_args[1] == '-h':
-						print('Move File or Directory:\nmv file1 File2\nmv File1 Directory1\nmv Directory1 Directory2')
+						print(_help('mv'))
 						continue
 				except:
 					continue
@@ -447,7 +520,7 @@ def main():
 			elif input_args[0] == 'rm':
 				try:
 					if input_args[1] == '-h':
-						print('Delete File or Directory: rm FileName.')
+						print(_help('rm'))
 						continue
 				except:
 					continue
@@ -477,7 +550,7 @@ def main():
 			elif input_args[0] == 'cat':
 				try:
 					if input_args[1] == '-h':
-						print('cat File')
+						print(_help('cat'))
 						continue
 				except:
 					continue
@@ -485,7 +558,7 @@ def main():
 			elif input_args[0] == 'touch':
 				try:
 					if input_args[1] == '-h':
-						print('touch FileName.')
+						print(_help('touch'))
 						continue
 				except:
 					continue
@@ -493,7 +566,7 @@ def main():
 			elif input_args[0] == 'cp':
 				try:
 					if input_args[1] == '-h':
-						print('copy file: cp file1 file2 or cp Dir1 Dir2')
+						print(_help('cp'))
 						continue
 				except:
 					continue
@@ -502,13 +575,20 @@ def main():
 				else:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
 			elif input_args[0] == 'help':
-				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, exit, ' + list_other_cmd())
+				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, wget, exit, ' + list_other_cmd())
 			elif input_args[0] == 'clear':
 				clear()
 			elif input_args[0] == 'cls':
 				clear()
 			elif input_args[0] == 'exit':
 				sys.exit(0)
+			elif input_args[0] == 'wget':
+				try:
+					if input_args[1] == '-h':
+						print(_help('wget'))
+				except:
+					continue
+				wget(input_args[1])
 			else:
 				run_other_cmd(input_args[0], input_args[1:])
 	except KeyboardInterrupt:
