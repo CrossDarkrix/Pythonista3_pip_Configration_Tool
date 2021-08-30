@@ -1,5 +1,5 @@
 ﻿#!python3
-import console, os, requests, shutil, sys, time
+import code, console, os, requests, runpy, shutil, sys, time
 from pkg_resources import load_entry_point
 from console import set_color as setColor
 from six.moves.urllib.request import urlopen
@@ -19,7 +19,7 @@ def init():
 def logo():
 	clear()
 	setColor(255, 0, 0)
-	return "- PythonTerminal v1.0 on Python3.6.3 -\n\nCheck can be used command: help.\n"
+	return "- pyTerminal v1.1 on Python3.6.3 -\n\nCheck can be used command: help.\n"
 
 def _help(lif):
 	if lif == 'ln':
@@ -50,6 +50,10 @@ def _help(lif):
 		return 'Copy and Overwrite File:\ncp {file1} {file2} or cp {Dir1} {Dir2}.'
 	if lif == 'wget':
 		return 'Download File: wget {URL}.'
+	if lif == 'python':
+		return 'Python Interactive Shell:\npython {File}\npython -m {Module}\npython .'
+	if lif == 'python3':
+		return 'Python3 Interactive Shell:\npython3 {File}\npython3.'
 
 def detect_file(file):
 	if file.split('.')[-1].lower() == 'py':
@@ -262,7 +266,7 @@ def detect_file(file):
 	else:
 		setColor()
 		return file
-
+	
 def listdir(arg, pwd):
 	hOME = os.getenv('HOME')
 	if arg == 'long':
@@ -305,6 +309,8 @@ def run_other_cmd(cmd_name, args):
 			exec(_read)
 		except SystemExit:
 			pass
+	except FileNotFoundError:
+		pass
 	except Exception as E:
 		print('ERROR: {ERR}'.format(ERR=E))
 
@@ -575,7 +581,7 @@ def main():
 				else:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
 			elif input_args[0] == 'help':
-				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, wget, exit, ' + list_other_cmd())
+				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, wget, python, python3, exit, ' + list_other_cmd())
 			elif input_args[0] == 'clear':
 				clear()
 			elif input_args[0] == 'cls':
@@ -589,6 +595,44 @@ def main():
 				except:
 					continue
 				wget(input_args[1])
+			elif input_args[0] == 'python':
+				try:
+					if not '/' in input_args[1]:
+						file_path = os.path.join(os.getcwd(), input_args[1])
+					else:
+						file_path = input_args[1]
+					py_file = open(file_path, 'r', encoding='utf-8').read()
+					ngL = dict(__name__ = '__main__', __file__ = file_path)
+					try:
+						exec(py_file, ngL)
+					except SystemExit:
+						pass
+				except:
+					try:
+						code.interact()
+					except SystemExit:
+						pass
+			elif input_args[0] == 'python3':
+				try:
+					if not '/' in input_args[1]:
+						file_path = os.path.join(os.getcwd(), input_args[1])
+					else:
+						file_path = input_args[1]
+					py_file = open(file_path, 'r', encoding='utf-8').read()
+					ngL = dict(__name__ = '__main__', __file__ = file_path)
+					try:
+						exec(py_file, ngL)
+					except SystemExit:
+						pass
+				except:
+					try:
+						code.interact()
+					except SystemExit:
+						pass
+			elif input_args[0] == '':
+				continue
+			elif input_args[0] == ' ':
+				continue
 			else:
 				run_other_cmd(input_args[0], input_args[1:])
 	except KeyboardInterrupt:
