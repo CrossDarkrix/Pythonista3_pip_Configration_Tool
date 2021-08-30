@@ -1,5 +1,5 @@
 ﻿#!python3
-import code, console, os, requests, runpy, shutil, sys, time
+import code, console, os, requests, shutil, sys, time
 from pkg_resources import load_entry_point
 from console import set_color as setColor
 from six.moves.urllib.request import urlopen
