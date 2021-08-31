@@ -19,7 +19,7 @@ def init():
 def logo():
 	clear()
 	setColor(255, 0, 0)
-	return "- pyTerminal v1.1 on Python3.6.3 -\n\nCheck can be used command: help.\n"
+	return "- pyTerminal v1.2 on Python3.6.3 -\n\nCheck can be used command: help.\n"
 
 def _help(lif):
 	if lif == 'ln':
@@ -330,7 +330,10 @@ def Symbolic_Link(Src, Dest):
 		print('Error: {ERR}.'.format(ERR=E))
 
 def chdirs(Location):
-	os.chdir(Location)
+	try:
+		os.chdir(Location)
+	except Exception as E:
+		print('ERROR:{}'.format(E))
 
 def clear():
 	console.clear()
@@ -430,16 +433,6 @@ def main():
 				except:
 					continue
 				try:
-					if input_args[1] == '-s':
-						if not '/' in input_args[2] and not '/' in input_args[3]:
-							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
-						elif not '/' in input_args[2]:
-							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
-					elif input_args[1][:1] == '-':
-						if not '/' in input_args[2] and not '/' in input_args[3]:
-							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), os.path.join(os.getcwd(), input_args[3]))
-						elif not '/' in input_args[2]:
-							Symbolic_Link(os.path.join(os.getcwd(), input_args[2]), input_args[3])
 					if not '/' in input_args[1] and not '/' in input_args[2]:
 						Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), os.path.join(os.getcwd(), input_args[2]))
 					elif not '/' in input_args[1]:
@@ -581,7 +574,7 @@ def main():
 				else:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
 			elif input_args[0] == 'help':
-				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, wget, python, python3, exit, ' + list_other_cmd())
+				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, wget, python, python3, ' + list_other_cmd() + ', exit,')
 			elif input_args[0] == 'clear':
 				clear()
 			elif input_args[0] == 'cls':
