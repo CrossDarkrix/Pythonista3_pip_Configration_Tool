@@ -427,10 +427,13 @@ def main():
 				try:
 					if input_args[1] == '-l':
 						listdir('long', os.getcwd())
+						continue
 					else:
 						listdir(None, None)
+						continue
 				except:
 					listdir(None, None)
+					continue
 			elif input_args[0] == 'la':
 				try:
 					if input_args[1] == '-h':
@@ -441,10 +444,13 @@ def main():
 				try:
 					if input_args[1] == '-l':
 						listdir('long', os.getcwd())
+						continue
 					else:
 						listdir(None, None)
+						continue
 				except:
 					listdir(None, None)
+					continue
 			elif input_args[0] == 'ln':
 				try:
 					if input_args[1] == '-h':
@@ -455,12 +461,15 @@ def main():
 				try:
 					if not '/' in input_args[1] and not '/' in input_args[2]:
 						Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), os.path.join(os.getcwd(), input_args[2]))
+						continue
 					elif not '/' in input_args[1]:
 						Symbolic_Link(os.path.join(os.getcwd(), input_args[1]), input_args[2])
+						continue
 					else:
 						Symbolic_Link(input_args[1], input_args[2])
+						continue
 				except:
-					pass
+					continue
 			elif input_args[0] == 'cd':
 				try:
 					if input_args[1] == '-h':
@@ -469,12 +478,24 @@ def main():
 				except:
 					continue
 				try:
+					if input_args[1][1:] == '$':
+						envpath = os.getenv(input_args[1].replace('$', ''))
+						chdirs(envpath)
+						continue
+					else:
+						continue
+				except:
+					continue
+				try:
 					if input_args[1] == '':
 						chdirs(HOME_direct)
+						continue
 					else:
 						chdirs(input_args[1])
+						continue
 				except IndexError:
 					chdirs(HOME_direct)
+					continue
 			elif input_args[0] == 'pwd':
 				try:
 					if input_args[1] == '-h':
@@ -487,6 +508,7 @@ def main():
 				except Exception as pwdErr:
 					pwd = pwdErr
 				print(pwd)
+				continue
 			elif input_args[0] == 'echo':
 				try:
 					if input_args[1] == '-h':
@@ -497,21 +519,26 @@ def main():
 				try:
 					if input_args[1] == '>':
 						create_empty_file(input_args[2])
+						continue
 					if input_args[1][:1] == '$':
 						env_data = os.getenv(input_args[1].replace('$', ''))
 						if not env_data is None:
 							print(env_data)
+							continue
 						else:
 							pass
 					if not input_args[1] == '' and input_args[2] == '>':
 						create_file(input_args[3], input_args[1])
+						continue
 					elif not input_args[1] == '':
 						print(input_args[1])
+						continue
 				except:
 					if not input_args[1] =='':
 						print(input_args[1])
+						continue
 					else:
-						pass
+						continue
 			elif input_args[0] == 'mkdir':
 				try:
 					if input_args[1] == '-h':
@@ -521,8 +548,10 @@ def main():
 						continue
 				if input_args[1] == '-p':
 					os.makedirs(input_args[2], exist_ok=True)
+					continue
 				else:
 					os.makedirs(input_args[1], exist_ok=True)
+					continue
 			elif input_args[0] == 'mv':
 				try:
 					if input_args[1] == '-h':
@@ -532,10 +561,12 @@ def main():
 					continue
 				try:
 					shutil.move(input_args[1], input_args[2])
+					continue
 				except IndexError:
-					pass
+					continue
 				except Exception as Err:
 					print(Err)
+					continue
 			elif input_args[0] == 'rm':
 				try:
 					if input_args[1] == '-h':
@@ -548,24 +579,29 @@ def main():
 						try:
 							for l in range(len(os.listdir())):
 								delete_Files(os.listdir()[l])
+							continue
 						except:
 							try:
 								for l in range(len(os.listdir())):
 									delete_Files(os.listdir()[l])
+								continue
 							except:
-								pass
+								continue
 				elif input_args[1][:1] == '.':
 					try:
 						for l in range(len(os.listdir())):
 							delete_Files(os.listdir()[l])
+							continue
 					except:
 						try:
 							for l in range(len(os.listdir())):
 								delete_Files(os.listdir()[l])
+							continue
 						except:
-							pass
+							continue
 				else:
 						delete_Files(input_args[1])
+						continue
 			elif input_args[0] == 'cat':
 				try:
 					if input_args[1] == '-h':
@@ -574,6 +610,7 @@ def main():
 				except:
 					continue
 				print(readfile(input_args[1]))
+				continue
 			elif input_args[0] == 'touch':
 				try:
 					if input_args[1] == '-h':
@@ -582,6 +619,7 @@ def main():
 				except:
 					continue
 				create_empty_file(input_args[1])
+				continue
 			elif input_args[0] == 'cp':
 				try:
 					if input_args[1] == '-h':
@@ -591,21 +629,27 @@ def main():
 					continue
 				if not '/' in input_args[2]:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]),os.path.join(os.getcwd(), input_args[2]))
+					continue
 				else:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
+					continue
 			elif input_args[0] == 'help':
 				print('[Default commands]:\nhelp, cat, cd, echo, la, ls, ln, mkdir, ping, rm, wget, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
 			elif input_args[0] == 'clear':
 				clear()
+				continue
 			elif input_args[0] == 'cls':
 				clear()
+				continue
 			elif input_args[0] == 'exit':
 				print('Exiting......')
+				break
 				sys.exit(0)
 			elif input_args[0] == 'wget':
 				try:
 					if input_args[1] == '-h':
 						print(_help('wget'))
+						continue
 				except:
 					continue
 				wget(input_args[1])
@@ -621,11 +665,13 @@ def main():
 						exec(py_file, ngL)
 					except SystemExit:
 						pass
+					continue
 				except:
 					try:
 						code.interact()
 					except SystemExit:
 						pass
+					continue
 			elif input_args[0] == 'python3':
 				try:
 					if not '/' in input_args[1]:
@@ -638,11 +684,13 @@ def main():
 						exec(py_file, ngL)
 					except SystemExit:
 						pass
+					continue
 				except:
 					try:
 						code.interact()
 					except SystemExit:
 						pass
+					continue
 			elif input_args[0] == 'ping':
 				if input_args[1] == '-h':
 					print(_help('ping'))
@@ -652,6 +700,7 @@ def main():
 						for G in range(int(input_args[2])):
 							print(ping(input_args[3]))
 							time.sleep(1)
+						continue
 					except IndexError:
 						pass
 				elif input_args[1] == '':
@@ -660,12 +709,14 @@ def main():
 					for P in range(3):
 						print(ping(input_args[1]))
 						time.sleep(1)
+					continue
 			elif input_args[0] == '':
 				continue
 			elif input_args[0] == ' ':
 				continue
 			else:
 				run_other_cmd(input_args[0], input_args[1:])
+				continue
 	except KeyboardInterrupt:
 		sys.exit(0)
 
