@@ -652,6 +652,8 @@ def main():
 							time.sleep(1)
 					except IndexError:
 						pass
+				elif input_args[1] == '':
+					continue
 				else:
 					for P in range(3):
 						print(ping(input_args[1]))
