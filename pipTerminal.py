@@ -1,5 +1,5 @@
 ﻿#!python3
-import code, console, math, os, requests, shutil, socket, sys, time
+import code, console, os, requests, shutil, socket, sys, time
 from pkg_resources import load_entry_point
 from console import set_color as setColor
 from six.moves.urllib.request import urlopen
@@ -290,12 +290,15 @@ def listdir(arg, pwd):
 				setColor()
 		except Exception as E:
 			print(E)
+
 def ping(host):
 	_p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	_p.settimeout(1)
 	f_time = time.time()
 	try:
 		_p.connect((host, 80))
+	except socket.timeout:
+		pass
 	except Exception as ERR:
 		if '22' in str(ERR) or 'argument' in str(ERR):
 			pass
@@ -303,8 +306,7 @@ def ping(host):
 			raise(ERR)
 	e_time = time.time()
 	_p.close()
-	ping_result = 'PING to {HOST} Time={TIME}ms'.format(HOST=host, TIME=str(math.floor((e_time - f_time) / 1000)))
-
+	ping_result = 'PING to {HOST} Time: {TIME}ms'.format(HOST=host, TIME=round(((e_time - f_time) * 1000), 2))
 	return ping_result
 
 def list_other_cmd():
