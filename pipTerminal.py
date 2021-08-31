@@ -1,5 +1,5 @@
 ﻿#!python3
-import code, console, os, requests, shutil, sys, time
+import code, console, math, os, requests, shutil, socket, sys, time
 from pkg_resources import load_entry_point
 from console import set_color as setColor
 from six.moves.urllib.request import urlopen
@@ -19,11 +19,11 @@ def init():
 def logo():
 	clear()
 	setColor(255, 0, 0)
-	return "- pyTerminal v1.2 on Python3.6.3 -\n\nCheck can be used command: help.\n"
+	return "- pyTerminal v1.3 on Python3.6.3.\n- Author: DarkRix.\n\n- Show All Commands: help\n"
 
 def _help(lif):
 	if lif == 'ln':
-		return 'Create Symbolic Link:\nln -s {Source} {Target}.'
+		return 'Create Symbolic Link:\nln {Source} {Target}.'
 	if lif == 'mv':
 		return 'Move File or Directory:\nmv file1 File2\nmv File1 Directory1\nmv Directory1 Directory2.'
 	if lif == 'ls':
@@ -54,6 +54,8 @@ def _help(lif):
 		return 'Python Interactive Shell:\npython {File}\npython -m {Module}\npython .'
 	if lif == 'python3':
 		return 'Python3 Interactive Shell:\npython3 {File}\npython3.'
+	if lif == 'ping':
+		return 'A Very Simple Ping:\nping {HOST}\nping -c {count} {HOST}'
 
 def detect_file(file):
 	if file.split('.')[-1].lower() == 'py':
@@ -288,9 +290,25 @@ def listdir(arg, pwd):
 				setColor()
 		except Exception as E:
 			print(E)
+def ping(host):
+	_p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	_p.settimeout(1)
+	f_time = time.time()
+	try:
+		_p.connect((host, 80))
+	except Exception as ERR:
+		if '22' in str(ERR) or 'argument' in str(ERR):
+			pass
+		if 'refused' not in str(ERR):
+			raise(ERR)
+	e_time = time.time()
+	_p.close()
+	ping_result = 'PING to {HOST} Time={TIME}ms'.format(HOST=host, TIME=str(math.floor((e_time - f_time) / 1000)))
+
+	return ping_result
 
 def list_other_cmd():
-	list = os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'))
+	list = sorted(os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')))
 	for d in range(len(list)):
 		try:
 			if os.path.isdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin', list[d])):
@@ -574,12 +592,13 @@ def main():
 				else:
 					copyFiles(os.path.join(os.getcwd(),input_args[1]), input_args[2])
 			elif input_args[0] == 'help':
-				print('help, cat, cd, echo, la, ls, ln, mkdir, rm, wget, python, python3, ' + list_other_cmd() + ', exit,')
+				print('[Default commands]:\nhelp, cat, cd, echo, la, ls, ln, mkdir, ping, rm, wget, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
 			elif input_args[0] == 'clear':
 				clear()
 			elif input_args[0] == 'cls':
 				clear()
 			elif input_args[0] == 'exit':
+				print('Exiting......')
 				sys.exit(0)
 			elif input_args[0] == 'wget':
 				try:
@@ -622,6 +641,21 @@ def main():
 						code.interact()
 					except SystemExit:
 						pass
+			elif input_args[0] == 'ping':
+				if input_args[1] == '-h':
+					print(_help('ping'))
+					continue
+				elif input_args[1] == '-c':
+					try:
+						for G in range(int(input_args[2])):
+							print(ping(input_args[3]))
+							time.sleep(1)
+					except IndexError:
+						pass
+				else:
+					for P in range(3):
+						print(ping(input_args[1]))
+						time.sleep(1)
 			elif input_args[0] == '':
 				continue
 			elif input_args[0] == ' ':
