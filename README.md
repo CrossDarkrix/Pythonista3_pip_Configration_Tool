@@ -1,5 +1,5 @@
 # Pythonista3 pip configration tool
-*Pythonista3でStashとは別でpipを使いたい人のためのツール群*
+*Pythonista3でstashのpipじゃない本物のpipを使いたい人向け*
 
 ## Installation
 *`pip-configration-tool.py`を実行後、*
@@ -14,12 +14,10 @@ import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content
 
 *再起動後`pipTerminal.py`を実行してエラーがなければ完成。*
 
-*エラーが出た場合: pip==○○○の部分の番号をインストールしたpipのバージョンにしてから実行してください。*
 
 ## トラブルシューティング
-*・pipのバージョンがわからない: Python Modules -> site-packages -> pipと開き`__init__.py`内の__version__ = ""内に書いてあります。*
 
-*・インストールしたモジュールのコマンドの配置場所がわからない: Python Modules -> site-packages -> binの中に入っています。*
+*インストールしたモジュールのコマンドの配置場所がわからない: Python Modules -> site-packages -> _binの中に入っています。*
 
 *モジュールのインストール時に警告が出る: -Uオプションをつけてみて下さい。(※Uは大文字です。)*
 
