@@ -79,7 +79,7 @@ def Argument_Paser(Args):
             sys.exit(0)
         try:
             if Args[0] == 'help':
-                print('[Default commands]:\nhelp, cat, cd, echo, la, ls, ln, mkdir, ping, rm, wget, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
+                print('[Default commands]:\nhelp, cat, cd, echo, env, la, ls, ln, mkdir, ping, rm, wget, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
             elif Args[0] == 'cat':
                 try:
                     if not Args[1] == '-h':
@@ -155,6 +155,8 @@ def Argument_Paser(Args):
                     sys.exit(0)
                 except:
                     pass
+            elif Args[0] == 'env':
+                print('\n'.join('{item}: {value}'.format(item=i, value=v) for i, v in os.environ.items()))
             elif Args[0] == 'la':
                 try:
                     try:
