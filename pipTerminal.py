@@ -76,7 +76,7 @@ def Argument_Paser(Args):
             if Args[1] == '-h' and Args[0] == 'unzip':
                 print('Usage: unzip [-h] [file]')
             if Args[1] == '-h' and Args[0] == 'zip':
-                print('Usage: zip [-h] [OutPutFileName] [Directory]')
+                print('Usage: zip [-h] [OutPutFileName] [Target]')
                 PASS()
         except IndexError:
             pass
