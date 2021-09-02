@@ -4,7 +4,7 @@
 Pythonista3 Console Terminal
 """
 
-import code, console, os, requests, shutil, socket, sys, time
+import code, console, os, requests, shutil, socket, sys, time, tarfile, zipfile
 from console import set_color as setColor
 from six.moves.urllib.request import urlopen
 
@@ -23,7 +23,7 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "- pyTerminal v1.5 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
+    return "- pyTerminal v1.6 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
 
 def Argument_Paser(Args):
     try:
@@ -73,13 +73,18 @@ def Argument_Paser(Args):
             if Args[1] == '-h' and Args[0] == 'wget':
                 print("Usage: wget [-h] [url]\n\nA simple File Download.")
                 PASS()
+            if Args[1] == '-h' and Args[0] == 'unzip':
+                print('Usage: unzip [-h] [file]')
+            if Args[1] == '-h' and Args[0] == 'zip':
+                print('Usage: zip [-h] [OutPutFileName] [Directory]')
+                PASS()
         except IndexError:
             pass
         except KeyboardInterrupt:
             sys.exit(0)
         try:
             if Args[0] == 'help':
-                print('[Default commands]:\nhelp, cat, cd, echo, env, la, ls, ln, mkdir, ping, rm, wget, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
+                print('[Default commands]:\nhelp, cat, cd, echo, env, la, ls, ln, mkdir, ping, rm, touch, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
             elif Args[0] == 'cat':
                 try:
                     if not Args[1] == '-h':
@@ -292,6 +297,18 @@ def Argument_Paser(Args):
                     sys.exit(0)
                 except:
                     pass
+            elif Args[0] == 'tar':
+                TarArgument(Args)
+            elif Args[0] == 'unzip':
+                try:
+                    if not Args[1] == '-h':
+                        ZIPExtractor(Args[1])
+                except IndexError:
+                    pass
+                except KeyboardInterrupt:
+                    sys.exit(0)
+                except:
+                    pass
             elif Args[0] == 'python':
                 try:
                     if not Args[1] == '-h':
@@ -340,6 +357,16 @@ def Argument_Paser(Args):
                 try:
                     if not Args[1] == '-h':
                         wget(Args[1])
+                except KeyboardInterrupt:
+                    sys.exit(0)
+                except:
+                    pass
+            elif Args[0] == 'zip':
+                try:
+                    if not Args[1] == '-h':
+                        ZipArchiveCreate(Args[1], Args[2])
+                except IndexError:
+                    pass
                 except KeyboardInterrupt:
                     sys.exit(0)
                 except:
@@ -723,6 +750,130 @@ def wget(URL):
                 f.write(_b)
     except Exception:
         print('Unknow Error, URL: {}'.format(URL))
+
+def help_tar():
+    print('tar [-h] [-j] [-z] [-x] [file [files ...]]')
+    print('Support Archive Type: tar.gz or tar.')
+    print('This command is extract only.')
+
+def TarArgument(ARGS):
+    try:
+        if 'x' in ARGS[1][1:]:
+            if 'z' in ARGS[1][1:]:
+                try:
+                    tExtract_ALL(os.path.join(os.getcwd(), ARGS[2][0:]), ARGS[1][1:])
+                except:
+                    pass
+            elif 'j' in ARGS[1][1:]:
+                try:
+                    tExtract_ALL(os.path.join(os.getcwd(), ARGS[2][0:]), ARGS[1][1:])
+                except:
+                    pass
+        elif ARGS[1][1:] == '--help':
+            help_tar()
+        elif 'h' in ARGS[1][1:]:
+            help_tar()
+        else:
+            help_tar()
+    except IndexError:
+        help_tar()
+    except KeyboardInterrupt:
+        sys.exit(0)
+    except:
+        pass
+
+def ExtractMems(mem, ext):
+    for tf in mem:
+        for pt in ext:
+            if tf.name == pt or tf.name.startswith(pt):
+                yield tf
+
+def tExtract_ALL(FName, tArgs, mems=None, Dir='./'):
+    if 'z' in tArgs[0]:
+        print('Reading gzip file')
+        tar = tarfile.open(FName, 'r:gz')
+    elif 'j' in tArgs[0]:
+        print('Reading bz2 file')
+        tar = tarfile.open(FName, 'r:bz2')
+    if mems:
+        tar.extractall(path=Dir, members=ExtractMems(tar, mems))
+    else:
+        tar.extractall(path=Dir)
+    tar.close()
+    print('Archive Extracted')
+
+def ZIPExtractor(zFileName):
+    if not os.path.isfile(zFileName):
+        print('{}: No such File...'.format(zFileName))
+    else:
+        try:
+            pk_Check = open(zFileName, 'rb').read(2)
+        except:
+            pk_Check = ''
+        
+        if pk_Check != b'PK':
+            print('{}: Dose not appear to be a ZIPFile.'.format(zFileName))
+        if os.path.basename(zFileName).lower().endswith('.zip'):
+            ALPath = os.path.splitext(os.path.basename(zFileName))[0]
+        else:
+            ALPath = os.path.basename(zFileName) + '_UnZIPPED'
+        ALPath = os.path.join(os.path.dirname(zFileName), ALPath)
+        if (os.path.exists(ALPath)) and not (os.path.isdir(ALPath)):
+            print('{}: Destination is not a Directory.'.format(ALPath))
+        elif not os.path.exists(ALPath):
+            os.makedirs(ALPath, exist_ok=True)
+        try:
+            ZIPfp = open(zFileName, 'rb')
+            ZipF = zipfile.ZipFile(ZIPfp)
+            DIR_NAME = [os.path.join(os.path.dirname(_z), '') for _z in ZipF.namelist()]
+            COMMON_DIR = os.path.commonprefix(DIR_NAME or ['/'])
+            if not COMMON_DIR.endswith('/'):
+                COMMON_DIR = os.path.join(os.path.dirname(COMMON_DIR), '')
+            for zNa in ZipF.namelist():
+                zData = ZipF.read(zNa)
+                Fn = zNa
+                if COMMON_DIR:
+                    if Fn.startswith(COMMON_DIR):
+                        Fn = Fn.split(COMMON_DIR, 1)[-1]
+                    elif Fn.startswith('/' + COMMON_DIR):
+                        Fn = Fn.split('/' + COMMON_DIR, 1)[-1]
+                Fn = Fn.lstrip('/')
+                Fn = os.path.join(ALPath, Fn)
+                DIRf = os.path.dirname(Fn)
+                
+                if not os.path.exists(DIRf):
+                    os.makedirs(DIRf, exist_ok=True)
+                if Fn.endswith('/'):
+                    if not os.path.exists(Fn):
+                        os.makedirs(Fn, exist_ok=True)
+                else:
+                    Fp = open(Fn, 'wb')
+                    try:
+                        Fp.write(zData)
+                    finally:
+                        Fp.close()
+                print(Fn)
+        except:
+            print('{}: ZIP File is Corrupt'.format(zFileName))
+
+def ZipArchiveCreate(ziPFilename, IPath):
+    REL_ROOT = os.path.abspath(os.path.dirname(ziPFilename))
+    with zipfile.ZipFile(ziPFilename, 'w', zipfile.ZIP_DEFLATED) as OutPutsZip:
+        if os.path.isfile(IPath):
+            print(IPath)
+            ARCHiveName = os.path.relpath(IPath, REL_ROOT)
+            OutPutsZip.write(IPath, arcname=ARCHiveName)
+        elif os.path.isdir(IPath):
+            for Root, Dir, Files in os.walk(IPath):
+                TH_RELROOT = os.path.relpath(Root, REL_ROOT)
+                OutPutsZip.write(Root, arcname=TH_RELROOT)
+                print(TH_RELROOT)
+                for _Fi in Files:
+                    Fi_Name = os.path.join(Root, _Fi)
+                    if os.path.isfile(Fi_Name):
+                        print(Fi_Name)
+                        ARCHIVE_NAME = os.path.join(TH_RELROOT, _Fi)
+                        OutPutsZip.write(Fi_Name, arcname=ARCHIVE_NAME)
 
 def StartUP():
     __init__()
