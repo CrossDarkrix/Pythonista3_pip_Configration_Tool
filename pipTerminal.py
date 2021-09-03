@@ -1,14 +1,24 @@
 ﻿#!python3
 
-"""
-Pythonista3 Console Terminal
-"""
+"""Pythonista3 Console Terminal"""
 
-import code, console, os, requests, shutil, socket, sys, time, tarfile, zipfile
+import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile
+from io import BytesIO
 from console import set_color as setColor
-from six.moves.urllib.request import urlopen
+from lib2to3.main import main as _2to3_main
+from urllib.error import URLError
 
 HOME_DIC = os.getcwd()
+
+def _2to3(pyArgs):
+    try:
+        sys.argv[1:] = pyArgs
+    except:
+        pass
+    try:
+        _2to3_main('lib2to3.fixes')
+    except:
+        pass
 
 def __init__():
     try:
@@ -23,74 +33,59 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "- pyTerminal v1.6 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
+    return "- pyTerminal v1.7.1 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
 
 def Argument_Paser(Args):
     try:
         try:
             if Args[1] == '-h' and Args[0] == 'cat':
                 print("Usage: cat [-h] [files [files ...]]")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'cd':
                 print("Usage: cd [-h] [dir]\n\nChange the Current working directory.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'cp':
                 print("Usage: cp [-h] source [source ...] dest")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'echo':
                 print("Usage: echo [-h]\n\nPrint All arguments to stdout, separated by space")
-                PASS()
+            if Args[1] == '-h' and Args[0] == 'git':
+                print('Usage: git clone <url> [path] - clone a remote repository')
             if Args[1] == '-h' and Args[0] == 'la':
                 print("Usage: la [-h] [-l] [files [files ...]]")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'ls':
                 print("Usage: ls [-h] [-l] [files [files ...]]")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'ln':
                 print("Usage: ln [-h] lhs rhs\n\nCreate Symblic Link.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'mkdir':
                 print("Usage: mkdir [-h] [-p] dir [dir ...]\n\nCreate a new directory.\nThe parent directory must specified.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'mv':
                 print("Usage: mv [-h] src [src ...] dest\n\nMove(Rename) a file or directory to a new name, or into a new directory.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'ping':
                 print("Usage: ping [-h] [-c COUNT] Destination\n\nSend ICMP ECHO_REQUET to network hosts.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'rm':
                 print("Usage: rm [-h] paths [paths ...]")
-                PASS()
-            if Args[1] == '-h' and Args[0] == 'touch':
-                print("Usage: touch [-h] file [file ...]\n\nUpdate the modification time of the given files, and create them if they do not yet exist.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'python':
                 print("Usage: python [-h] [file]\n\nPython Interactive Shell.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'python3':
                 print("Usage: python3 [-h] [file]\n\nPython Interactive Shell.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'wget':
                 print("Usage: wget [-h] [url]\n\nA simple File Download.")
-                PASS()
             if Args[1] == '-h' and Args[0] == 'unzip':
                 print('Usage: unzip [-h] [file]')
             if Args[1] == '-h' and Args[0] == 'zip':
                 print('Usage: zip [-h] [OutPutFileName] [Target]')
-                PASS()
         except IndexError:
             pass
-        except KeyboardInterrupt:
-            sys.exit(0)
         try:
             if Args[0] == 'help':
-                print('[Default commands]:\nhelp, cat, cd, echo, env, la, ls, ln, mkdir, ping, rm, touch, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
+                print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, ping, rm, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
             elif Args[0] == 'cat':
                 try:
                     if not Args[1] == '-h':
                         print(readfile(Args[1]))
-                except KeyboardInterrupt:
-                    sys.exit(0)
+                except:
+                    pass
+            elif Args[0] == '2to3':
+                try:
+                    _2to3(Args[1:])
                 except:
                     pass
             elif Args[0] == 'cd':
@@ -98,8 +93,8 @@ def Argument_Paser(Args):
                     if not Args[1] == '-h':
                         try:
                             try:
-                                if Args[1][1:] == '$':
-                                    chdirs(os.getenv(Args.replace('$', '')))
+                                if Args[1][0] == '$':
+                                    chdirs(os.getenv(Args[1][1:]))
                                 else:
                                     chdirs(Args[1])
                             except IndexError:
@@ -120,8 +115,6 @@ def Argument_Paser(Args):
                         copyFiles(os.path.join(os.getcwd(),Args[1]),os.path.join(os.getcwd(), Args[2]))
                     else:
                         copyFiles(os.path.join(os.getcwd(),Args[1]), Args[2])
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'echo':
@@ -156,12 +149,21 @@ def Argument_Paser(Args):
                                 print(Args[1])
                         except IndexError:
                             print()
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'env':
                 print('\n'.join('{item}: {value}'.format(item=i, value=v) for i, v in os.environ.items()))
+            elif Args[0] == 'git':
+                try:
+                    if not Args[1] == '-h':
+                        if Args[1] == 'clone':
+                            git_clone(Args[2:])
+                        else:
+                            print('This git is clone command only')
+                except IndexError:
+                    print('Usage: git clone <url> [path] - clone a remote repository')
+                except:
+                    pass
             elif Args[0] == 'la':
                 try:
                     try:
@@ -169,9 +171,6 @@ def Argument_Paser(Args):
                             listdir('long', os.getcwd())
                     except IndexError:
                         listdir(None, None)
-                    except KeyboardInterrupt:
-                        sys.exit(0)
-                except KeyboardInterrupt:
                     sys.exit(0)
                 except:
                     pass
@@ -182,10 +181,6 @@ def Argument_Paser(Args):
                             listdir('long', os.getcwd())
                     except IndexError:
                         listdir(None, None)
-                    except KeyboardInterrupt:
-                        sys.exit(0)
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'ln':
@@ -207,8 +202,6 @@ def Argument_Paser(Args):
                                     Symbolic_Link(Args[1], Args[2])
                             except:
                                 pass
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'mkdir':
@@ -218,8 +211,6 @@ def Argument_Paser(Args):
                             os.makedirs(Args[2], exist_ok=True)
                         else:
                             os.makedirs(Args[1], exist_ok=True)
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'mv':
@@ -231,8 +222,6 @@ def Argument_Paser(Args):
                             pass
                         except Exception as Err:
                             print(Err)
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'ping':
@@ -252,8 +241,6 @@ def Argument_Paser(Args):
                                 for _P in range(3):
                                     print(ping(Args[1]))
                                     time.sleep(1)
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'pwd':
@@ -283,18 +270,8 @@ def Argument_Paser(Args):
                 except IndexError:
                     try:
                         delete_Files(Args[1])
-                    except Exception as E:
-                        print(E)
-                except KeyboardInterrupt:
-                    sys.exit(0)
-                except:
-                    pass
-            elif Args[0] == 'touch':
-                try:
-                    if not Args[1] == '-h':
-                        create_empty_file(Args[1])
-                except KeyboardInterrupt:
-                    sys.exit(0)
+                    except Exception as Err:
+                        print(Err)
                 except:
                     pass
             elif Args[0] == 'tar':
@@ -305,8 +282,6 @@ def Argument_Paser(Args):
                         ZIPExtractor(Args[1])
                 except IndexError:
                     pass
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'python':
@@ -327,8 +302,6 @@ def Argument_Paser(Args):
                                 code.interact()
                             except SystemExit:
                                 pass
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'python3':
@@ -349,8 +322,6 @@ def Argument_Paser(Args):
                                 code.interact()
                             except SystemExit:
                                 pass
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'wget':
@@ -367,8 +338,6 @@ def Argument_Paser(Args):
                         ZipArchiveCreate(Args[1], Args[2])
                 except IndexError:
                     pass
-                except KeyboardInterrupt:
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'exit':
@@ -638,6 +607,38 @@ def delete_Files(Name):
     except Exception as e:
         print(e)
 
+def git_clone(gitArgs):
+    try:
+        gitPATH = gitArgs[1]
+    except IndexError:
+        gitPATH = os.getcwd()
+    except:
+        gitPATH = os.getcwd()
+
+    if len(gitArgs) > 0:
+        rURL = gitArgs[0]
+        if rURL.endswith('.git'):
+            rURL = rURL[:-4]
+        UserName, ProjectName = re.match('https://github.com/(.+)/(.+)', rURL).groups()[0:2]
+        gitFileName = gitPATH + '/' + ProjectName
+        fURL = 'https://github.com/{USER}/{PROJECT}/archive/master.zip'.format(USER=UserName, PROJECT=ProjectName)
+        try:
+            RESPONSE_DATA = urllib.request.urlopen(urllib.request.Request(fURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity'})).read()
+            master_name = 'master'
+        except URLError:
+            reURL = 'https://github.com/{}/{}'.format(UserName, ProjectName)
+            FFdata = urllib.request.urlopen(urllib.request.Request(reURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity'})).read()
+            Pattern = '{}/{}/tree/(.*?)/'.format(UserName, ProjectName)
+            master_name = re.findall(Pattern, str(FFdata))[-1]
+            ffURL = 'https://codeload.github.com/{}/{}/zip/{}'.format(UserName, ProjectName, master_name)
+            RESPONSE_DATA = urllib.request.urlopen(urllib.request.Request(ffURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity', 'HOSTS': 'github.com'})).read()
+        with zipfile.ZipFile(BytesIO(RESPONSE_DATA), 'r') as Fzip:
+            Fzip.extractall(gitPATH+'/.')
+        vName = gitFileName + '-' + master_name
+        if os.path.exists(vName):
+            os.rename(vName, gitFileName)
+        print('Done')
+
 def listdir(arg, pwd):
     hOME = os.getenv('HOME')
     if arg == 'long':
@@ -669,9 +670,6 @@ def list_other_cmd():
         except:
             pass
     return ', '.join(list)
-
-def PASS():
-    pass
 
 def ping(host):
     _p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -731,7 +729,7 @@ def Symbolic_Link(Src, Dest):
 def wget(URL):
     try:
         output_fileName = URL.split('/')[-1]
-        ur = urlopen(URL)
+        ur = urllib.request.urlopen(URL)
         md = ur.info()
         try:
             fs = int(md["Content-Length"])
@@ -749,7 +747,7 @@ def wget(URL):
                 fs_dl += len(_b)
                 f.write(_b)
     except Exception:
-        print('Unknow Error, URL: {}'.format(URL))
+        print('Error. URL: {}'.format(URL))
 
 def help_tar():
     print('tar [-h] [-j] [-z] [-x] [file [files ...]]')
@@ -875,15 +873,9 @@ def ZipArchiveCreate(ziPFilename, IPath):
                         ARCHIVE_NAME = os.path.join(TH_RELROOT, _Fi)
                         OutPutsZip.write(Fi_Name, arcname=ARCHIVE_NAME)
 
-def StartUP():
+def main():
     __init__()
     print(SystemLogo())
-    try:
-        main()
-    except KeyboardInterrupt:
-        sys.exit(0)
-
-def main():
     setColor()
     try:
         while True:
@@ -896,4 +888,4 @@ def main():
         sys.exit(0)
 
 if __name__ == '__main__':
-    StartUP()
+    main()
