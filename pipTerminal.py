@@ -59,7 +59,7 @@ def Argument_Paser(Args):
             if Args[1] == '-h' and Args[0] == 'mv':
                 print("Usage: mv [-h] src [src ...] dest\n\nMove(Rename) a file or directory to a new name, or into a new directory.")
             if Args[1] == '-h' and Args[0] == 'ping':
-                print("Usage: ping [-h] [-c COUNT] Destination\n\nSend ICMP ECHO_REQUET to network hosts.")
+                print("Usage: ping [-h] [-c COUNT] Destination\n\nSend ping to network hosts.")
             if Args[1] == '-h' and Args[0] == 'rm':
                 print("Usage: rm [-h] paths [paths ...]")
             if Args[1] == '-h' and Args[0] == 'python':
