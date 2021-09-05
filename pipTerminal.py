@@ -3,9 +3,9 @@
 """Pythonista3 Console Terminal"""
 
 import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile
-from io import BytesIO
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
+from io import BytesIO
 from urllib.error import URLError
 
 HOME_DIC = os.getcwd()
@@ -33,7 +33,7 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "- pyTerminal v1.7.1 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
+    return "- pyTerminal v1.7.5 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
 
 def Argument_Paser(Args):
     try:
@@ -76,7 +76,7 @@ def Argument_Paser(Args):
             pass
         try:
             if Args[0] == 'help':
-                print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, ping, rm, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd())
+                print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, ping, rm, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + list_stash_bin())
             elif Args[0] == 'cat':
                 try:
                     if not Args[1] == '-h':
@@ -661,6 +661,21 @@ def listdir(arg, pwd):
         except Exception as E:
             print(E)
 
+def list_stash_bin():
+    sh_bin_list = sorted(os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'stash_extensions', 'bin')))
+    for DIR_PATH in range(len(sh_bin_list)):
+        try:
+            if os.path.isdir(sorted(os.path.join(os.getenv('HOME'), 'Documents', 'stash_extensions', 'bin', sh_bin_list[DIR_PATH]))):
+                del sh_bin_list[DIR_PATH]
+        except:
+            pass
+        try:
+            if sh_bin_list[DIR_PATH].split('.')[-1].lower() == 'py':
+                sh_bin_list[DIR_PATH] = sh_bin_list[DIR_PATH].replace('.py','')
+        except:
+            pass
+    return ', '.join(sh_bin_list)
+
 def list_other_cmd():
     list = sorted(os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')))
     for d in range(len(list)):
@@ -696,6 +711,22 @@ def readfile(Name):
     except:
         pass
 
+def run_stash_bin(cmdName, Sargs):
+    try:
+        stash_bin_path = os.path.join(os.getenv('HOME'), 'Documents', 'stash_extensions', 'bin')
+        Rcommand_name = cmdName + '.py'
+        RfileName = os.path.join(stash_bin_path, Rcommand_name)
+        RFile_read = open(RfileName, 'r', encoding='utf-8').read()
+        sys.argv[1:] = Sargs
+        try:
+            exec(RFile_read)
+        except SystemExit:
+            pass
+    except FileNotFoundError:
+        pass
+    except Exception as E:
+        print('ERROR: {}'.format(E))
+
 def run_other_cmd(cmd_name, args):
     try:
         cmd_bin = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')
@@ -707,7 +738,7 @@ def run_other_cmd(cmd_name, args):
         except SystemExit:
             pass
     except FileNotFoundError:
-        pass
+        run_stash_bin(cmd_name, args)
     except Exception as E:
         print('ERROR: {ERR}'.format(ERR=E))
 
