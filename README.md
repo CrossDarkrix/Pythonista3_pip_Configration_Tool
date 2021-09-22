@@ -24,6 +24,9 @@ import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content
 
 `main(sys.argv[1:])`
 
+*任意の名前のコマンド `-h`でヘルプを見れます。*
+
+
 ## トラブルシューティング
 
 *インストールしたモジュールのコマンドの配置場所がわからない: Python Modules -> site-packages -> _binの中に入っています。*
