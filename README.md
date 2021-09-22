@@ -14,6 +14,13 @@ import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content
 
 *再起動後`pipTerminal.py`を実行してエラーがなければ完成。*
 
+*おまけ: パッケージを自動選択してアップデートしてくれる`pythonista3_PackagesUpdater`を導入するとアップデートが楽になります。*
+
+*以下を任意の名前でPython Modules -> site-packages -> _binに作成*
+
+`import sys
+`from pythonista3_PackagesUpdater import main`
+`main(sys.argv[1:])`
 
 ## トラブルシューティング
 
