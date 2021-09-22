@@ -18,7 +18,7 @@ import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content
 
 *以下を任意の名前でPython Modules -> site-packages -> _binに作成*
 
-`import sys
+`import sys`
 `from pythonista3_PackagesUpdater import main`
 `main(sys.argv[1:])`
 
