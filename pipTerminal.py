@@ -1,4 +1,4 @@
-﻿#!python3
+#!python3
 
 """Pythonista3 Console Terminal"""
 
@@ -152,7 +152,7 @@ def Argument_Paser(Args):
                 except:
                     pass
             elif Args[0] == 'env':
-                print('\n'.join('{item}: {value}'.format(item=i, value=v) for i, v in os.environ.items()))
+                for item, value in os.environ.items():setColor(255, 0, 0);print('{}'.format(item), end=': ');setColor();print(value)
             elif Args[0] == 'git':
                 try:
                     if not Args[1] == '-h':
@@ -839,7 +839,6 @@ def ZIPExtractor(zFileName):
             pk_Check = open(zFileName, 'rb').read(2)
         except:
             pk_Check = ''
-        
         if pk_Check != b'PK':
             print('{}: Dose not appear to be a ZIPFile.'.format(zFileName))
         if os.path.basename(zFileName).lower().endswith('.zip'):
@@ -869,7 +868,6 @@ def ZIPExtractor(zFileName):
                 Fn = Fn.lstrip('/')
                 Fn = os.path.join(ALPath, Fn)
                 DIRf = os.path.dirname(Fn)
-                
                 if not os.path.exists(DIRf):
                     os.makedirs(DIRf, exist_ok=True)
                 if Fn.endswith('/'):
