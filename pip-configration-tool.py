@@ -20,3 +20,4 @@ mk('.config/pip', exist_ok=True)
 cd('.config/pip')
 with open('pip.conf', mode='w') as f:
 	f.write(pip_config)
+print('Successful!')
