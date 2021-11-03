@@ -6,6 +6,7 @@ import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
 from io import BytesIO
+from platform import python_version
 from urllib.error import URLError
 
 HOME_DIC = os.getcwd()
@@ -33,7 +34,7 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "- pyTerminal v1.7.5 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
+    return "- pyTerminal v1.7.7 on Python {}\n- Author: DarkRix.\n\n- Show All Commands: help\n".format(python_version())
 
 def Argument_Paser(Args):
     try:
@@ -152,7 +153,11 @@ def Argument_Paser(Args):
                 except:
                     pass
             elif Args[0] == 'env':
-                for item, value in os.environ.items():setColor(255, 0, 0);print('{}'.format(item), end=': ');setColor();print(value)
+                for item, value in os.environ.items():
+                    setColor(255, 0, 0)
+                    print('{}'.format(item), end=': ')
+                    setColor()
+                    print(value)
             elif Args[0] == 'git':
                 try:
                     if not Args[1] == '-h':
@@ -591,6 +596,10 @@ def detect_file(file):
     elif os.path.islink(os.path.join(os.getcwd(), file)):
         setColor()
         setColor(255, 0, 255)
+        return file
+    elif os.path.isdir(os.path.join(os.getcwd(), file)):
+        setColor()
+        setColor(0, 0, 205)
         return file
     else:
         setColor()
