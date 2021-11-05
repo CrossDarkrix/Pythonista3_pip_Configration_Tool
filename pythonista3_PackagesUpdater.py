@@ -7,16 +7,13 @@ Author: DarkRix
 Version: 3.6_pythonista3
 """
 
-import json, sys, argparse, concurrent.futures
+import json, sys, argparse
 from io import StringIO as io
-from itertools import cycle
 from os import chdir as cd, getcwd as pwd
 from pip._internal.cli.main import main as pip
-from threading import Thread as Th
 from time import sleep, time as ti
 
 currentdir = pwd()
-count = [0]
 backup_stdout = sys.stdout
 backup_stderr = sys.stderr
 
@@ -29,15 +26,6 @@ def pip_json():
 		JSON_pip_Data = jdata.getvalue()
 		sys.stdout = backup_stdout
 		sys.stderr = backup_stderr
-
-def Animeations():
-	for Loading in cycle(['|', '/', '-', '\\']):
-		print("Getting Update Packages List....{Sp}".format(Sp=Loading), end='\r', flush=True)
-		sleep(0.1)
-		count.append(+1)
-		if len(count) == 30:
-			break
-	print("Loading Packages List.............\n", end='\r', flush=True)
 
 def List():
 	start = ti()
