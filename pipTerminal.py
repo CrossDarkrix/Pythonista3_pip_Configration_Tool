@@ -9,6 +9,7 @@ from io import BytesIO
 from platform import python_version
 from urllib.error import URLError
 
+Command_DIRNAME = ['Py3:', '~', '$ ']
 HOME_DIC = os.getcwd()
 
 def _2to3(pyArgs):
@@ -918,7 +919,11 @@ def main():
     try:
         while True:
             try:
-                INPUT_Argument = input('Pythonista3:~# ').split(' ')
+                try:
+                    Command_DIRNAME[1] = os.getcwd().replace(os.getenv('HOME'), '~')
+                except Exception as Err:
+                    Command_DIRNAME[1] = Err.replace(os.getenv('HOME'), '~')
+                INPUT_Argument = input(''.join(Command_DIRNAME)).split(' ')
                 Argument_Paser(INPUT_Argument)
             except KeyboardInterrupt:
                 sys.exit(0)
