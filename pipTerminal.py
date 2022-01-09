@@ -35,7 +35,7 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "- pyTerminal v1.7.7 on Python {}\n- Author: DarkRix.\n\n- Show All Commands: help\n".format(python_version())
+    return "- pyTerminal v2.0.0 on Python {}\n- Author: DarkRix.\n\n- Show All Commands: help\n".format(python_version())
 
 def Argument_Paser(Args):
     try:
@@ -922,7 +922,12 @@ def main():
                 try:
                     Command_DIRNAME[1] = os.getcwd().replace(os.getenv('HOME'), '~')
                 except Exception as Err:
-                    Command_DIRNAME[1] = Err.replace(os.getenv('HOME'), '~')
+                    print(Err)
+                    try:
+                        Argument_Paser(['cd', '../'])
+                    except:
+                       print('Occurred Some Errors,\nExiting.........')
+                       sys.exit(0)
                 INPUT_Argument = input(''.join(Command_DIRNAME)).split(' ')
                 Argument_Paser(INPUT_Argument)
             except KeyboardInterrupt:
