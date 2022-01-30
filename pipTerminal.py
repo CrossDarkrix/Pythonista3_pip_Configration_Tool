@@ -230,6 +230,11 @@ def Argument_Paser(Args):
                             print(Err)
                 except:
                     pass
+            elif Args[0] == 'open':
+                try:
+                    console.quicklook(Args[1])
+                except Exception as E:
+                    print(E)
             elif Args[0] == 'ping':
                 try:
                     if not Args[1] == '-h':
