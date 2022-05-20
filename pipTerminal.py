@@ -7,9 +7,10 @@ from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
 from io import BytesIO
 from platform import python_version
+from platform import node as hostname
 from urllib.error import URLError
 
-Command_DIRNAME = ['Py3:', '~', '$ ']
+Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), hostname()), '', '']
 HOME_DIC = os.getcwd()
 
 def _2to3(pyArgs):
@@ -35,9 +36,10 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "- pyTerminal v2.0.0 on Python {}\n- Author: DarkRix.\n\n- Show All Commands: help\n".format(python_version())
+    return "{}\n| - pyTerminal v2.0.4 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
 
 def Argument_Paser(Args):
+    setColor()
     try:
         try:
             if Args[1] == '-h' and Args[0] == 'cat':
@@ -924,8 +926,14 @@ def main():
     try:
         while True:
             try:
+                setColor(0, 102, 0)
+                Command_DIRNAME[2] = ''
+                print(Command_DIRNAME[0], end='\r', flush=True)
+                setColor()
+                print(':', end='', flush=True)
+                setColor(0, 10, 255)
                 try:
-                    Command_DIRNAME[1] = os.getcwd().replace(os.getenv('HOME'), '~')
+                    Command_DIRNAME[2] = os.getcwd().replace(os.getenv('HOME'), '~')
                 except Exception as Err:
                     print(Err)
                     try:
@@ -933,7 +941,9 @@ def main():
                     except:
                        print('Occurred Some Errors,\nExiting.........')
                        sys.exit(0)
-                INPUT_Argument = input(''.join(Command_DIRNAME)).split(' ')
+                print(Command_DIRNAME[2], end='', flush=True)
+                setColor()
+                INPUT_Argument = input('$ ').split(' ')
                 Argument_Paser(INPUT_Argument)
             except KeyboardInterrupt:
                 sys.exit(0)
