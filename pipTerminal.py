@@ -2,13 +2,15 @@
 
 """Pythonista3 Console Terminal"""
 
-import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile
+import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, requests
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
 from io import BytesIO
 from platform import python_version
 from platform import node as hostname
 from urllib.error import URLError
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), hostname()), '', '']
 HOME_DIC = os.getcwd()
@@ -36,7 +38,7 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "{}\n| - pyTerminal v2.0.4 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
+    return "{}\n| - pyTerminal v2.0.5 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
 
 def Argument_Paser(Args):
     setColor()
@@ -340,7 +342,13 @@ def Argument_Paser(Args):
             elif Args[0] == 'wget':
                 try:
                     if not Args[1] == '-h':
-                        wget(Args[1])
+                        try:
+                            if Args[2] == '-o':
+                                wget(Args[1], filename=Args[3])
+                            elif Args[2] == '--output':
+                                wget(Args[1], filename=Args[3])
+                        except IndexError:
+                            wget(Args[1])
                 except KeyboardInterrupt:
                     sys.exit(0)
                 except:
@@ -774,10 +782,14 @@ def Symbolic_Link(Src, Dest):
     except Exception as E:
         print('Error: {ERR}.'.format(ERR=E))
 
-def wget(URL):
+def wget(URL, filename=''):
+    user_agent = {'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.0; en-la; Nexus Build/JPG991) AppleWebKit/511.2 (KHTML, like Gecko) Version/5.0 Mobile/11S444 YJApp-ANDROID jp.co.yahoo.android.yjtop/4.01.1.5'}
+    if filename == '':
+        output_fileName = urllib.parse.unquote(urllib.parse.unquote(URL.split('/')[-1]))
+    else:
+        output_fileName = filename
     try:
-        output_fileName = URL.split('/')[-1]
-        ur = urllib.request.urlopen(URL)
+        ur = urllib.request.urlopen(urllib.request.Request(URL, headers=user_agent))
         md = ur.info()
         try:
             fs = int(md["Content-Length"])
@@ -794,8 +806,26 @@ def wget(URL):
                     break
                 fs_dl += len(_b)
                 f.write(_b)
-    except Exception:
-        print('Error. URL: {}'.format(URL))
+    except:
+        try:
+            print('downloading.....')
+            uu = requests.get(URL, headers=user_agent)
+            try:
+                File_size = int(uu.headers['Content-Length'])
+            except  (IndexError, ValueError, TypeError):
+                File_size = 0
+            if uu.headers['Content-Type'] == 'application/json':
+                with open(output_fileName, 'w') as F:
+                    F.write(uu.json())
+                print('save as {}'.format(output_fileName))
+                print("({} bytes)".format(File_size if File_size else "???"))
+            else:
+                with open(output_fileName, 'wb') as Fb:
+                    Fb.write(uu.content)
+                print('Save as: {}'.format(output_fileName))
+                print("({} bytes)".format(File_size if File_size else "???"))
+        except Exception:
+            print('Error. URL: {}'.format(URL))
 
 def help_tar():
     print('tar [-h] [-j] [-z] [-x] [file [files ...]]')
