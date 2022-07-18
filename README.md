@@ -5,7 +5,7 @@
 *`pip-configration-tool.py`を実行後、*
 
 ```Python
-import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content) 
+import requests as r; exec(r.get('https://bootstrap.pypa.io/pip/3.6/get-pip.py').content) 
 ```
 
 *上記をコンソールにコピペ&実行。*

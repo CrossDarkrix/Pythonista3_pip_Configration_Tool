@@ -1,13 +1,18 @@
-﻿#!python3
+#!python3
 
 """Pythonista3 Console Terminal"""
 
-import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile
+import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, requests
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
 from io import BytesIO
+from platform import python_version
+from platform import node as hostname
 from urllib.error import URLError
 
+ssl._create_default_https_context = ssl._create_unverified_context
+
+Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), hostname()), '', '']
 HOME_DIC = os.getcwd()
 
 def _2to3(pyArgs):
@@ -33,9 +38,10 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "- pyTerminal v1.7.5 on Python3.6.3\n- Author: DarkRix.\n\n- Show All Commands: help\n"
+    return "{}\n| - pyTerminal v2.0.5 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
 
 def Argument_Paser(Args):
+    setColor()
     try:
         try:
             if Args[1] == '-h' and Args[0] == 'cat':
@@ -76,7 +82,7 @@ def Argument_Paser(Args):
             pass
         try:
             if Args[0] == 'help':
-                print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, ping, rm, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + list_stash_bin())
+                print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + list_stash_bin())
             elif Args[0] == 'cat':
                 try:
                     if not Args[1] == '-h':
@@ -152,7 +158,11 @@ def Argument_Paser(Args):
                 except:
                     pass
             elif Args[0] == 'env':
-                print('\n'.join('{item}: {value}'.format(item=i, value=v) for i, v in os.environ.items()))
+                for item, value in os.environ.items():
+                    setColor(255, 0, 0)
+                    print('{}'.format(item), end=': ')
+                    setColor()
+                    print(value)
             elif Args[0] == 'git':
                 try:
                     if not Args[1] == '-h':
@@ -224,6 +234,11 @@ def Argument_Paser(Args):
                             print(Err)
                 except:
                     pass
+            elif Args[0] == 'open':
+                try:
+                    console.quicklook(Args[1])
+                except Exception as E:
+                    print(E)
             elif Args[0] == 'ping':
                 try:
                     if not Args[1] == '-h':
@@ -327,7 +342,13 @@ def Argument_Paser(Args):
             elif Args[0] == 'wget':
                 try:
                     if not Args[1] == '-h':
-                        wget(Args[1])
+                        try:
+                            if Args[2] == '-o':
+                                wget(Args[1], filename=Args[3])
+                            elif Args[2] == '--output':
+                                wget(Args[1], filename=Args[3])
+                        except IndexError:
+                            wget(Args[1])
                 except KeyboardInterrupt:
                     sys.exit(0)
                 except:
@@ -592,6 +613,10 @@ def detect_file(file):
         setColor()
         setColor(255, 0, 255)
         return file
+    elif os.path.isdir(os.path.join(os.getcwd(), file)):
+        setColor()
+        setColor(0, 0, 205)
+        return file
     else:
         setColor()
         return file
@@ -757,10 +782,14 @@ def Symbolic_Link(Src, Dest):
     except Exception as E:
         print('Error: {ERR}.'.format(ERR=E))
 
-def wget(URL):
+def wget(URL, filename=''):
+    user_agent = {'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.0; en-la; Nexus Build/JPG991) AppleWebKit/511.2 (KHTML, like Gecko) Version/5.0 Mobile/11S444 YJApp-ANDROID jp.co.yahoo.android.yjtop/4.01.1.5'}
+    if filename == '':
+        output_fileName = urllib.parse.unquote(urllib.parse.unquote(URL.split('/')[-1]))
+    else:
+        output_fileName = filename
     try:
-        output_fileName = URL.split('/')[-1]
-        ur = urllib.request.urlopen(URL)
+        ur = urllib.request.urlopen(urllib.request.Request(URL, headers=user_agent))
         md = ur.info()
         try:
             fs = int(md["Content-Length"])
@@ -777,8 +806,26 @@ def wget(URL):
                     break
                 fs_dl += len(_b)
                 f.write(_b)
-    except Exception:
-        print('Error. URL: {}'.format(URL))
+    except:
+        try:
+            print('downloading.....')
+            uu = requests.get(URL, headers=user_agent)
+            try:
+                File_size = int(uu.headers['Content-Length'])
+            except  (IndexError, ValueError, TypeError):
+                File_size = 0
+            if uu.headers['Content-Type'] == 'application/json':
+                with open(output_fileName, 'w') as F:
+                    F.write(uu.json())
+                print('save as {}'.format(output_fileName))
+                print("({} bytes)".format(File_size if File_size else "???"))
+            else:
+                with open(output_fileName, 'wb') as Fb:
+                    Fb.write(uu.content)
+                print('Save as: {}'.format(output_fileName))
+                print("({} bytes)".format(File_size if File_size else "???"))
+        except Exception:
+            print('Error. URL: {}'.format(URL))
 
 def help_tar():
     print('tar [-h] [-j] [-z] [-x] [file [files ...]]')
@@ -839,7 +886,6 @@ def ZIPExtractor(zFileName):
             pk_Check = open(zFileName, 'rb').read(2)
         except:
             pk_Check = ''
-        
         if pk_Check != b'PK':
             print('{}: Dose not appear to be a ZIPFile.'.format(zFileName))
         if os.path.basename(zFileName).lower().endswith('.zip'):
@@ -869,7 +915,6 @@ def ZIPExtractor(zFileName):
                 Fn = Fn.lstrip('/')
                 Fn = os.path.join(ALPath, Fn)
                 DIRf = os.path.dirname(Fn)
-                
                 if not os.path.exists(DIRf):
                     os.makedirs(DIRf, exist_ok=True)
                 if Fn.endswith('/'):
@@ -911,7 +956,24 @@ def main():
     try:
         while True:
             try:
-                INPUT_Argument = input('Pythonista3:~# ').split(' ')
+                setColor(0, 102, 0)
+                Command_DIRNAME[2] = ''
+                print(Command_DIRNAME[0], end='\r', flush=True)
+                setColor()
+                print(':', end='', flush=True)
+                setColor(0, 10, 255)
+                try:
+                    Command_DIRNAME[2] = os.getcwd().replace(os.getenv('HOME'), '~')
+                except Exception as Err:
+                    print(Err)
+                    try:
+                        Argument_Paser(['cd', '../'])
+                    except:
+                       print('Occurred Some Errors,\nExiting.........')
+                       sys.exit(0)
+                print(Command_DIRNAME[2], end='', flush=True)
+                setColor()
+                INPUT_Argument = input('$ ').split(' ')
                 Argument_Paser(INPUT_Argument)
             except KeyboardInterrupt:
                 sys.exit(0)
