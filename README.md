@@ -2,7 +2,11 @@
 *Pythonista3でstashのpipじゃない本物のpipを使いたい人向け*
 
 ## Installation
-*`pip-configration-tool.py`を実行後、*
+```Python
+import requests as r; exec(r.get('https://raw.githubusercontent.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/main/pip-configration-tool.py').content)
+```
+
+*`上記でpip-configration-tool.py`を実行後、*
 
 ```Python
 import requests as r; exec(r.get('https://bootstrap.pypa.io/pip/3.6/get-pip.py').content) 
@@ -14,6 +18,8 @@ import requests as r; exec(r.get('https://bootstrap.pypa.io/pip/3.6/get-pip.py')
 
 *再起動後`pipTerminal.py`を実行してエラーがなければ完成。*
 
+![Preview](https://raw.githubusercontent.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/main/images/pip-Terminal_Preview.png)
+
 *おまけ: パッケージを自動選択してアップデートしてくれる`pythonista3_PackagesUpdater`を導入するとアップデートが楽になります。*
 
 *以下を任意の名前でPython Modules -> site-packages -> _binに作成*
@@ -24,7 +30,7 @@ from pythonista3_PackagesUpdater import main
 main(sys.argv[1:])
 ```
 
-*任意の名前のコマンド `-h`でヘルプを見れます。*
+*任意の名前にしたコマンド(例:`pip-updater`) `-h`でヘルプを見れます。*
 
 
 ## トラブルシューティング
