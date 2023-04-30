@@ -310,7 +310,7 @@ def Argument_Paser(Args):
                             py_file = open(file_path, 'r', encoding='utf-8').read()
                             try:
                                 exec(py_file)
-                            except SystemExit:
+                            except:
                                 pass
                         except:
                             try:
@@ -745,7 +745,7 @@ def run_stash_bin(cmdName, Sargs):
         sys.argv[1:] = Sargs
         try:
             exec(RFile_read)
-        except SystemExit:
+        except:
             pass
     except FileNotFoundError:
         pass
@@ -760,7 +760,7 @@ def run_other_cmd(cmd_name, args):
         sys.argv[1:] = args
         try:
             exec(_read)
-        except SystemExit:
+        except:
             pass
     except FileNotFoundError:
         run_stash_bin(cmd_name, args)
