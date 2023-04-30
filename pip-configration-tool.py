@@ -5,13 +5,13 @@ from os import makedirs as mk
 HOMEdic = env('HOME')
 
 pip_config = """[global]
-prefix = {HOME}/Documents/site-packages/_bin
+target = {HOME}/Documents/site-packages/
 
 [user]
-prefix = {HOME}/Documents/site-packages/_bin
+target = {HOME}/Documents/site-packages/
 
 [site]
-prefix = {HOME}/Documents/site-packages/_bin
+target = {HOME}/Documents/site-packages/
 """.format(HOME=HOMEdic)
 
 
