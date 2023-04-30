@@ -6,17 +6,21 @@ HOMEdic = env('HOME')
 
 pip_config = """[global]
 target = {HOME}/Documents/site-packages
+prefix = {HOME}/Documents/site-packages/_bin
 
 [user]
 target = {HOME}/Documents/site-packages
+prefix = {HOME}/Documents/site-packages/_bin
 
 [site]
 target = {HOME}/Documents/site-packages
+prefix = {HOME}/Documents/site-packages/_bin
 """.format(HOME=HOMEdic)
 
 
 cd(HOMEdic)
 mk('.config/pip', exist_ok=True)
+mk('{HOME}/Documents/site-packages/_bin'.format(HOME=HOMEdic), exist_ok=True)
 cd('.config/pip')
 with open('pip.conf', mode='w') as f:
 	f.write(pip_config)
