@@ -2,7 +2,7 @@
 
 """Pythonista3 Console Terminal"""
 
-import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, requests, signal
+import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, requests
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
 from io import BytesIO
