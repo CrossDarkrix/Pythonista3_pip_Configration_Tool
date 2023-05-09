@@ -112,7 +112,7 @@ def Argument_Paser(Args):
                                 chdirs(HOME_DIC)
                         except KeyboardInterrupt:
                             is_Exits = False
-                            [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
+                            sys.exit(0)
                             is_Exits = False
                         except:
                             pass
@@ -355,7 +355,7 @@ def Argument_Paser(Args):
                             wget(Args[1])
                 except KeyboardInterrupt:
                     is_Exits = False
-                    [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
+                    sys.exit(0)
                     is_Exits = False
                     print(end='\r')
                 except:
@@ -371,7 +371,7 @@ def Argument_Paser(Args):
             elif Args[0] == 'exit':
                 print('Exiting.......')
                 is_Exits = False
-                [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
+                sys.exit(0)
                 is_Exits = False
             elif Args[0] == 'clear':
                 clear()
