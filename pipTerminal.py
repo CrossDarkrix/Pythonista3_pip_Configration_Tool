@@ -15,11 +15,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), hostname()), '', '']
 HOME_DIC = os.getcwd()
 is_Exits = True
-def Exit(arg=0):
-    for _ in range(2):
-        os.kill(os.getpid(), signal.SIGINT)
 
-sys.exit = Exit
 def _2to3(pyArgs):
     try:
         sys.argv[1:] = pyArgs
