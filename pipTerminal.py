@@ -29,10 +29,11 @@ def _2to3(pyArgs):
 def __init__():
     try:
         os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
+        os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
         default_bin = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin')
         files = os.listdir(default_bin)
         for f in range(len(files)):
-            shutil.move(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin', files[f]), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'))
+            shutil.copy(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin', files[f]), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'))
     except:
         pass
 
