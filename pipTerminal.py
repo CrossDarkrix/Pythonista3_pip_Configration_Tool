@@ -118,7 +118,6 @@ def Argument_Paser(Args):
                             is_Exits = False
                             [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
                             is_Exits = False
-                            print(end='\r')
                         except:
                             pass
                 except:
@@ -378,7 +377,6 @@ def Argument_Paser(Args):
                 is_Exits = False
                 [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
                 is_Exits = False
-                print(end='\r')
             elif Args[0] == 'clear':
                 clear()
             elif Args[0] == 'cls':
