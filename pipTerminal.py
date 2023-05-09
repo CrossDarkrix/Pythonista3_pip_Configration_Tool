@@ -2,7 +2,7 @@
 
 """Pythonista3 Console Terminal"""
 
-import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, requests
+import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, requests, signal
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
 from io import BytesIO
@@ -14,7 +14,12 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), hostname()), '', '']
 HOME_DIC = os.getcwd()
+is_Exits = True
+def Exit(arg=0):
+    for _ in range(2):
+        os.kill(os.getpid(), signal.SIGINT)
 
+sys.exit = Exit
 def _2to3(pyArgs):
     try:
         sys.argv[1:] = pyArgs
@@ -38,7 +43,7 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "{}\n| - pyTerminal v2.0.5 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
+    return "{}\n| - pyTerminal v2.0.6 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
 
 def Argument_Paser(Args):
     setColor()
@@ -110,7 +115,10 @@ def Argument_Paser(Args):
                             if Args[1] == ' ':
                                 chdirs(HOME_DIC)
                         except KeyboardInterrupt:
-                            sys.exit(0)
+                            is_Exits = False
+                            [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
+                            is_Exits = False
+                            print(end='\r')
                         except:
                             pass
                 except:
@@ -181,7 +189,6 @@ def Argument_Paser(Args):
                             listdir('long', os.getcwd())
                     except IndexError:
                         listdir(None, None)
-                    sys.exit(0)
                 except:
                     pass
             elif Args[0] == 'ls':
@@ -310,6 +317,8 @@ def Argument_Paser(Args):
                             py_file = open(file_path, 'r', encoding='utf-8').read()
                             try:
                                 exec(py_file)
+                            except SystemExit:
+                                pass
                             except:
                                 pass
                         except:
@@ -330,7 +339,7 @@ def Argument_Paser(Args):
                             py_file = open(file_path, 'r', encoding='utf-8').read()
                             try:
                                 exec(py_file)
-                            except SystemExit:
+                            except:
                                 pass
                         except:
                             try:
@@ -350,7 +359,10 @@ def Argument_Paser(Args):
                         except IndexError:
                             wget(Args[1])
                 except KeyboardInterrupt:
-                    sys.exit(0)
+                    is_Exits = False
+                    [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
+                    is_Exits = False
+                    print(end='\r')
                 except:
                     pass
             elif Args[0] == 'zip':
@@ -363,7 +375,10 @@ def Argument_Paser(Args):
                     pass
             elif Args[0] == 'exit':
                 print('Exiting.......')
-                sys.exit(0)
+                is_Exits = False
+                [os.kill(os.getpid(), signal.SIGINT) for _ in range(2)]
+                is_Exits = False
+                print(end='\r')
             elif Args[0] == 'clear':
                 clear()
             elif Args[0] == 'cls':
@@ -376,8 +391,10 @@ def Argument_Paser(Args):
                 run_other_cmd(Args[0], Args[1:])
         except KeyboardInterrupt:
             sys.exit(0)
+            clear()
     except KeyboardInterrupt:
         sys.exit(0)
+        clear()
 
 def clear():
     console.clear()
@@ -855,6 +872,7 @@ def TarArgument(ARGS):
         help_tar()
     except KeyboardInterrupt:
         sys.exit(0)
+        clear()
     except:
         pass
 
@@ -953,32 +971,34 @@ def main():
     __init__()
     print(SystemLogo())
     setColor()
-    try:
-        while True:
+    while is_Exits:
+        try:
+            setColor(0, 102, 0)
+            Command_DIRNAME[2] = ''
+            print(Command_DIRNAME[0], end='\r', flush=True)
+            setColor()
+            print(':', end='', flush=True)
+            setColor(0, 10, 255)
             try:
-                setColor(0, 102, 0)
-                Command_DIRNAME[2] = ''
-                print(Command_DIRNAME[0], end='\r', flush=True)
-                setColor()
-                print(':', end='', flush=True)
-                setColor(0, 10, 255)
-                try:
-                    Command_DIRNAME[2] = os.getcwd().replace(os.getenv('HOME'), '~')
-                except Exception as Err:
-                    print(Err)
-                    try:
-                        Argument_Paser(['cd', '../'])
-                    except:
-                       print('Occurred Some Errors,\nExiting.........')
-                       sys.exit(0)
-                print(Command_DIRNAME[2], end='', flush=True)
-                setColor()
-                INPUT_Argument = input('$ ').split(' ')
-                Argument_Paser(INPUT_Argument)
-            except KeyboardInterrupt:
-                sys.exit(0)
-    except KeyboardInterrupt:
-        sys.exit(0)
+                Command_DIRNAME[2] = os.getcwd().replace(os.getenv('HOME'), '~')
+            except Exception as Err:
+               print(Err)
+               try:
+                   Argument_Paser(['cd', '../'])
+               except:
+                  print('Occurred Some Errors,\nExiting.........')
+                  sys.exit(0)
+                  clear()
+            print(Command_DIRNAME[2], end='', flush=True)
+            setColor()
+            INPUT_Argument = input('$ ').split(' ')
+            Argument_Paser(INPUT_Argument)
+        except KeyboardInterrupt:
+            sys.exit(0)
+            clear()
+        if not is_Exits:
+            break
+    clear()
 
 if __name__ == '__main__':
     main()
