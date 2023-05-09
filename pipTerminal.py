@@ -385,10 +385,8 @@ def Argument_Paser(Args):
                 run_other_cmd(Args[0], Args[1:])
         except KeyboardInterrupt:
             sys.exit(0)
-            clear()
     except KeyboardInterrupt:
         sys.exit(0)
-        clear()
 
 def clear():
     console.clear()
@@ -866,7 +864,6 @@ def TarArgument(ARGS):
         help_tar()
     except KeyboardInterrupt:
         sys.exit(0)
-        clear()
     except:
         pass
 
@@ -982,17 +979,17 @@ def main():
                except:
                   print('Occurred Some Errors,\nExiting.........')
                   sys.exit(0)
-                  clear()
             print(Command_DIRNAME[2], end='', flush=True)
             setColor()
             INPUT_Argument = input('$ ').split(' ')
             Argument_Paser(INPUT_Argument)
         except KeyboardInterrupt:
             sys.exit(0)
-            clear()
         if not is_Exits:
             break
-    clear()
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
