@@ -9,7 +9,7 @@ import requests as r; exec(r.get('https://raw.githubusercontent.com/CrossDarkrix
 *上記で`pip-configration-tool.py`を実行後、*
 
 ```Python
-import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content) 
+import requests as r; exec(r.get('https://bootstrap.pypa.io/get-pip.py').content)
 ```
 
 *上記をコンソールにコピペ&実行。*
@@ -47,3 +47,11 @@ main(sys.argv[1:])
 *問: 何をしているの?*
 
 *答: モジュールのインストール場所をPython Modules内のsite-packagesに指定する設定ファイルを環境変数「HOME」内の「.config/pip」へ配置しています。*
+
+## おまけ
+
+*StaShの２０２１年度版のPythonista3.4暫定対処版を使う場合*
+
+```Python
+import requests as r; exec(r.get('https://raw.githubusercontent.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/main/StaSh/getstash.py').content)
+```
