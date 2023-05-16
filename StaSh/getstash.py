@@ -298,9 +298,9 @@ def main(defs={}):
     os.makedirs(os.path.join(BASE_DIR, "Documents", "site-packages", "_bin"), exist_ok=True)
     shutil.copy(os.path.join(BASE_DIR, "Documents", "launch_stash.py"), os.path.join(BASE_DIR, "Documents", "site-packages", "PyTermianl3.py"))
     with open(os.path.join(BASE_DIR, "Documents", "site-packages", "_bin", "sh"), "w") as f1:
-        f.write("from PyTermianl3 import main\nmain()")
+        f1.write("from PyTermianl3 import main\nmain()")
     with open(os.path.join(BASE_DIR, "Documents", "site-packages", "_bin", "terminal"), "w") as f2:
-        f.write("from PyTermianl3 import main\nmain()")
+        f2.write("from PyTermianl3 import main\nmain()")
 
 # if __name__ == "__main__":
 #     print("executing main()")
