@@ -1,24 +1,23 @@
-﻿from os import chdir as cd
-from os import getenv as env
-from os import makedirs as mk
+﻿import os
 
-HOMEdic = env('HOME')
-
-pip_config = """[global]
-target={HOME}/Documents/site-packages/
+def main():
+    FirstDic = os.getcwd()
+    HOMEDic = os.getenv('HOME')
+    pip_config = """[global]
+prefix={HOME}/Documents/site-packages/
 
 [user]
-target={HOME}/Documents/site-packages/
+prefix={HOME}/Documents/site-packages/
 
 [site]
-target={HOME}/Documents/site-packages/
-""".format(HOME=HOMEdic)
+prefix={HOME}/Documents/site-packages/""".format(HOME=HOMEDic)
 
-
-cd(HOMEdic)
-mk('.config/pip', exist_ok=True)
-mk('{HOME}/Documents/site-packages/_bin'.format(HOME=HOMEdic), exist_ok=True)
-cd('.config/pip')
-with open('pip.conf', mode='w') as f:
-	f.write(pip_config)
+    os.chdir(HOMEDic)
+    os.makedirs(os.path.join('.config', 'pip'), exist_ok=True)
+    os.makedirs(os.path.join(HOMEDic, 'Documents', 'site-packages', '_bin'), exist_ok=True)
+    os.chdir(os.path.join('.config', 'pip'))
+    with open('pip.conf', 'w') as f:
+        f.write(pip_config)
+    os.chdir(FirstDic)
+main()
 print('Successful!')

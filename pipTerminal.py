@@ -30,17 +30,16 @@ def __init__():
     try:
         os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
         os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
-        default_bin = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin')
-        files = os.listdir(default_bin)
-        for f in range(len(files)):
-            shutil.copy(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin', files[f]), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'))
+        shutil.copytree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), dirs_exist_ok=True)
+        shutil.rmtree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'))
+        os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
     except:
         pass
 
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "{}\n| - pyTerminal v2.0.6 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
+    return "{}\n| - pyTerminal v2.0.7 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
 
 def Argument_Paser(Args):
     setColor()
@@ -217,6 +216,23 @@ def Argument_Paser(Args):
                                 pass
                 except:
                     pass
+            elif Args[0] == 'pip':
+                if not os.path.exists(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin', 'pip')):
+                    data = "# -*- coding: utf-8 -*-\nimport re\nimport sys\nfrom pip._internal.cli.main import main\nif __name__ == '__main__':\n    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])\n    sys.exit(main())"
+                    with open(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin', 'pip'), 'w') as pipF:
+                        pipF.write(data)
+                cmd_bin = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')
+                fileNa = os.path.join(cmd_bin, 'pip')
+                _read = open(fileNa, 'r', encoding='utf-8').read()
+                sys.argv[1:] = Args[1:]
+                try:
+                    exec(_read)
+                except:
+                    pass
+                if os.path.exists(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib', 'python3.1', 'site-packages')):
+                    shutil.copytree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib', 'python3.1', 'site-packages'), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages'), dirs_exist_ok=True)
+                    shutil.rmtree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib'))
+                    __init__()
             elif Args[0] == 'mkdir':
                 try:
                     if not Args[1] == '-h':
