@@ -26,7 +26,7 @@ def installation_pipTerminal():
         terminal.write(urllib.request.urlopen('https://raw.githubusercontent.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/main/pipTerminal.py').read().decode(errors='ignore'))
 
 def installation_realpip():
-    with open(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'), 'w') as fpip:
+    with open(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'), 'w') as fpip:
         fpip.write(urllib.request.urlopen('https://bootstrap.pypa.io/get-pip.py').read().decode(errors='ignore'))
     with open(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'), 'r') as rpip:
         import setuppip
