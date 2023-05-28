@@ -65,6 +65,7 @@ import requests as r; exec(r.get('https://tinyurl.com/Setup-pipTerminal').conten
 # Troubleshooting
 *Do no know installed module command path. -> Modules install command path to: "~/Documents/site-packages/_bin".*
 *not showing installed module to "pip list". -> Please restart pythonista*
+
 *tar.gz moddule not installing. -> pythonista is not supported tarball module.* 
 
 # Optinal
