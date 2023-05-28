@@ -47,7 +47,7 @@ main(sys.argv[1:])
 import requests as r; exec(r.get('https://raw.githubusercontent.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/main/StaSh/getstash.py').content)
 ```
 
-## English version
+# English version
 
 # Pythonista3 pip configration tool
 *no StaSh pip installation tool*
