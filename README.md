@@ -70,7 +70,7 @@ import requests as r; exec(r.get('https://tinyurl.com/Setup-pipTerminal').conten
 
 *tar.gz moddule not installing. -> pythonista is not supported tarball module.* 
 
-# Optinal
+# Optional
 *`pythonista3_PackagesUpdater` is Easy all module auto updating tool*
 
 *download pythonista3_PackagesUpdater.py to "~/Documents/site-packages/pythonista3_PackagesUpdater.py"*
@@ -85,7 +85,7 @@ main(sys.argv[1:])
 ```
 *help showing to "pupdate --help or pupdate -h".*
 
-## Optinal2
+## Optional2
 *Use My modified StaSh:*
 ```Python
 import requests as r; exec(r.get('https://raw.githubusercontent.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/main/StaSh/getstash.py').content)
