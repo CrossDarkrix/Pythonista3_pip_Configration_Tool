@@ -30,7 +30,10 @@ def installation_realpip():
         fpip.write(urllib.request.urlopen('https://bootstrap.pypa.io/get-pip.py').read().decode(errors='ignore'))
     with open(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'), 'r') as _rp:
         from setuppip import main
-        main()
+        try:
+            main()
+        except KeyboardInterrupt:
+            pass
     os.remove(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'))
 
 def main():
