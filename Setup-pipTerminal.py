@@ -33,7 +33,7 @@ def installation_realpip():
             import setuppip
         except:
             pass
-    os.remove(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'))
+    os.remove(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'))
 
 def main():
     print('Settingup pip conf file.........')
