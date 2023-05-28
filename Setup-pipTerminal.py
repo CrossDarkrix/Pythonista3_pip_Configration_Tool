@@ -33,7 +33,6 @@ def installation_realpip():
         main()
     os.remove(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'setuppip.py'))
 
-
 def main():
     print('Settingup pip conf file.........')
     setting_pip()
