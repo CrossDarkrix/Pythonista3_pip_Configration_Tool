@@ -1,4 +1,5 @@
-import os, urllib.request
+import os, urllib.request, pkgutil, shutil, tempfile, argparse, importlib, sys
+from base64 import b85decode
 
 def setting_pip():
     FirstDic = os.getcwd()
