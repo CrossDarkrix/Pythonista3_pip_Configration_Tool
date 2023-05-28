@@ -30,7 +30,7 @@ def installation_realpip():
         fpip.write(urllib.request.urlopen('https://bootstrap.pypa.io/get-pip.py').read().decode(errors='ignore'))
     with open(os.path.join(os.getenv('HOME'), 'Documents', 'setuppip.py'), 'r') as rpip:
         os.chdir(os.path.join(os.getenv('HOME'), 'Documents'))
-        import setuppip
+        import setuppip.py
     os.remove(os.path.join(os.getenv('HOME'), 'Documents', 'setuppip.py'))
 
 def main():
