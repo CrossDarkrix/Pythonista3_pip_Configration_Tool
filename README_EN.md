@@ -2,7 +2,7 @@
 *no StaSh pip installation tool*
 
 ## Installation
-*running to*
+*This is code copy & paste Pythonista3 console to run.*
 ```Python
 import requests as r; exec(r.get('https://tinyurl.com/Setup-pipTerminal').content)
 ```
