@@ -1,7 +1,7 @@
 # Pythonista3 pip configration tool
 *Pythonista3でstashのpipじゃない本物のpipを使いたい人向け*
 
-[English](https://github.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/blob/main/README_EN.md)
+[English Version](https://github.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/blob/main/README_EN.md)
 
 ## Installation
 ```Python
