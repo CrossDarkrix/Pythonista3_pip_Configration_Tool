@@ -2,13 +2,14 @@
 
 """Pythonista3 Console Terminal"""
 
-import code, console, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, requests
+import code, console, clipboard, concurrent.futures, os, objc_util, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, socket, requests, ui
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
 from io import BytesIO
 from platform import python_version
 from platform import node as hostname
 from urllib.error import URLError
+from io import StringIO
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -39,7 +40,7 @@ def __init__():
 def SystemLogo():
     clear()
     setColor(255, 0, 0) # red
-    return "{}\n| - pyTerminal v2.0.7 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
+    return "{}\n| - pyTerminal v2.0.8 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, python_version(), "-"*41)
 
 def Argument_Paser(Args):
     setColor()
@@ -53,6 +54,10 @@ def Argument_Paser(Args):
                 print("Usage: cp [-h] source [source ...] dest")
             if Args[1] == '-h' and Args[0] == 'echo':
                 print("Usage: echo [-h]\n\nPrint All arguments to stdout, separated by space")
+            if Args[1] == '-h' and Args[0] == 'delclip':
+                print('Delete Clipboard')
+            if Args[1] == '-h' and Args[0] == 'showip':
+                print('Show you are Local iP Adress')
             if Args[1] == '-h' and Args[0] == 'git':
                 print('Usage: git clone <url> [path] - clone a remote repository')
             if Args[1] == '-h' and Args[0] == 'la':
@@ -83,7 +88,7 @@ def Argument_Paser(Args):
             pass
         try:
             if Args[0] == 'help':
-                print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, exit\n\n[Third Party commands]:\n' + list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + list_stash_bin())
+                print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + list_stash_bin())
             elif Args[0] == 'cat':
                 try:
                     if not Args[1] == '-h':
@@ -95,8 +100,34 @@ def Argument_Paser(Args):
                     _2to3(Args[1:])
                 except:
                     pass
+            elif Args[0] == 'pbcopy':
+                try:
+                    try:
+                        clipboard.set(b'\x00\x00')
+                    except:
+                        pass
+                    concurrent.futures.ThreadPoolExecutor().submit(clipboard.set, str(Args[1]))
+                except:
+                    pass
+            elif Args[0] == 'pbpaste':
+                try:
+                    print(clipboard.get())
+                except:
+                    pass
+            elif Args[0] == 'delclip':
+                concurrent.futures.ThreadPoolExecutor().submit(clipboard.set, '')
+            elif Args[0] == 'showip':
+                try:
+                    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                        s.connect(('8.8.8.8', 80))
+                        print('You are Local iP: {}'.format(s.getsockname()[0]))
+                except:
+                    pass
             elif Args[0] == 'cd':
                 try:
+                    if '$' in Args[1] and '/' in Args[1]:
+                        Arg1 = Args[1].replace('$', os.getenv(Args[1].split('$')[1].split('/')[0]))
+                        Args[1] = Args.replace(Args[1].split('$')[1].split('/')[0], '')
                     if not Args[1] == '-h':
                         try:
                             try:
@@ -155,9 +186,9 @@ def Argument_Paser(Args):
                     except IndexError:
                         try:
                             if not Args[1] == '':
-                                print(Args[1])
+                                pass
                         except IndexError:
-                            print()
+                            pass
                 except:
                     pass
             elif Args[0] == 'env':
@@ -193,7 +224,8 @@ def Argument_Paser(Args):
                             listdir('long', os.getcwd())
                     except IndexError:
                         listdir(None, None)
-                except:
+                except Exception as R:
+                    print(R)
                     pass
             elif Args[0] == 'ln':
                 try:
@@ -288,6 +320,9 @@ def Argument_Paser(Args):
                     pass
             elif Args[0] == 'rm':
                 try:
+                    if '$' in Args[1] and '/' in Args[1]:
+                        Arg1 = Args[1].replace('$', os.getenv(Args[1].split('$')[1].split('/')[0]))
+                        Args[1] = Args.replace(Args[1].split('$')[1].split('/')[0], '')
                     if not Args[1] == '-h':
                         if Args[1][0:] == './':
                             try:
@@ -328,7 +363,7 @@ def Argument_Paser(Args):
                                 file_path = Args[1]
                             py_file = open(file_path, 'r', encoding='utf-8').read()
                             try:
-                                exec(py_file)
+                                exec(py_file, globals())
                             except SystemExit:
                                 pass
                             except:
@@ -338,6 +373,11 @@ def Argument_Paser(Args):
                                 code.interact()
                             except SystemExit:
                                 pass
+                except IndexError:
+                    try:
+                        code.interact()
+                    except SystemExit:
+                        pass
                 except:
                     pass
             elif Args[0] == 'python3':
@@ -350,7 +390,7 @@ def Argument_Paser(Args):
                                 file_path = Args[1]
                             py_file = open(file_path, 'r', encoding='utf-8').read()
                             try:
-                                exec(py_file)
+                                exec(py_file, globals())
                             except:
                                 pass
                         except:
@@ -358,6 +398,11 @@ def Argument_Paser(Args):
                                 code.interact()
                             except SystemExit:
                                 pass
+                except IndexError:
+                    try:
+                        code.interact()
+                    except SystemExit:
+                        pass
                 except:
                     pass
             elif Args[0] == 'wget':
@@ -697,10 +742,16 @@ def listdir(arg, pwd):
         len_dir_lists = len(listdirs)
         for lis in range(len_dir_lists):
             if os.path.islink(os.path.join(pwd, listdirs[lis])):
-                print('[%s] %s -> %s' % (time.strftime("%Y-%m-%d", time.localtime(os.stat(os.path.join(pwd, listdirs[lis])).st_mtime)),detect_file(listdirs[lis]), os.path.realpath(os.path.join(pwd, listdirs[lis])).replace(hOME, '~')))
+                try:
+                    print('[%s] %s -> %s' % (time.strftime("%Y-%m-%d", time.localtime(os.stat(os.path.join(pwd, listdirs[lis])).st_mtime)),detect_file(listdirs[lis]), os.path.realpath(os.path.join(pwd, listdirs[lis])).replace(hOME, '~')))
+                except:
+                    continue
                 setColor()
             else:
-                print('[%s] %s' % (time.strftime("%Y-%m-%d", time.localtime(os.stat(os.path.join(pwd, listdirs[lis])).st_mtime)),detect_file(listdirs[lis])))
+                try:
+                    print('[%s] %s' % (time.strftime("%Y-%m-%d", time.localtime(os.stat(os.path.join(pwd, listdirs[lis])).st_mtime)),detect_file(listdirs[lis])))
+                except:
+                    continue
                 setColor()
     elif arg == None:
         try:
@@ -975,6 +1026,7 @@ def ZipArchiveCreate(ziPFilename, IPath):
                         ARCHIVE_NAME = os.path.join(TH_RELROOT, _Fi)
                         OutPutsZip.write(Fi_Name, arcname=ARCHIVE_NAME)
 
+@ui.in_background
 def main():
     __init__()
     print(SystemLogo())
@@ -998,15 +1050,65 @@ def main():
                   sys.exit(0)
             print(Command_DIRNAME[2], end='', flush=True)
             setColor()
-            INPUT_Argument = input('$ ').split(' ')
-            Argument_Paser(INPUT_Argument)
+            sys.stdout = BackupSTDOUT
+            INPUT_Argument = input('$ ')
+            if '|' in INPUT_Argument:
+                with StringIO() as St:
+                    sys.stdout = St
+                    Argument_Paser(INPUT_Argument.split('|')[0].split(' '))
+                    INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], St.getvalue().replace('\r', '').replace('\n', '')]
+                    sys.stdout = BackupSTDOUT
+                    concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, INPUT_Arguments)
+            elif '>>' in INPUT_Argument:
+                with StringIO() as St:
+                    sys.stdout = St
+                    INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
+                    concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
+                    Argument_Paser(INPUT_Arguments)
+                    ArgV = St.getvalue()
+                    sys.stdout = BackupSTDOUT
+                    if '$' in INPUT_Argument.replace(' ', '').split('>>')[1]:
+                        FileName = INPUT_Argument.replace(' ', '').split('>>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0], '')
+                    else:
+                        FileName = INPUT_Argument.replace(' ', '').split('>>')[1]
+                    with open(FileName, 'a', encoding='utf-8') as text:
+                        text.write(ArgV)
+            elif '>' in INPUT_Argument:
+                with StringIO() as St:
+                    sys.stdout = St
+                    INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
+                    concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
+                    Argument_Paser(INPUT_Arguments)
+                    ArgV = St.getvalue()
+                    sys.stdout = BackupSTDOUT
+                    if '$' in INPUT_Argument.replace(' ', '').split('>')[1]:
+                        FileName = INPUT_Argument.replace(' ', '').split('>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0], '')
+                    else:
+                        FileName = INPUT_Argument.replace(' ', '').split('>')[1]
+                    with open(FileName, 'w', encoding='utf-8') as text:
+                        text.write(ArgV)
+            else:
+                Argument_Paser(INPUT_Argument.split(' '))
         except KeyboardInterrupt:
             sys.exit(0)
         if not is_Exits:
             break
 
+def delelemnts(element):
+    while True:
+         try:
+             if '' in element:
+                  element.remove('')
+             else:
+                  break
+         except:
+             break
+    return element
+BackupSTDOUT = sys.stdout
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
         pass
+
+sys.stdout = BackupSTDOUT
