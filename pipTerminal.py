@@ -57,7 +57,7 @@ def Argument_Paser(Args):
             if Args[1] == '-h' and Args[0] == 'delclip':
                 print('Delete Clipboard')
             if Args[1] == '-h' and Args[0] == 'showip':
-                print('Show you are Local iP Adress')
+                print('Show you are Local & Global iP Adress')
             if Args[1] == '-h' and Args[0] == 'git':
                 print('Usage: git clone <url> [path] - clone a remote repository')
             if Args[1] == '-h' and Args[0] == 'la':
@@ -119,8 +119,9 @@ def Argument_Paser(Args):
             elif Args[0] == 'showip':
                 try:
                     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                        user_agent = {'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.0; en-la; Nexus Build/JPG991) AppleWebKit/511.2 (KHTML, like Gecko) Version/5.0 Mobile/11S444 YJApp-ANDROID jp.co.yahoo.android.yjtop/4.01.1.5'}
                         s.connect(('8.8.8.8', 80))
-                        print('You are Local iP: {}'.format(s.getsockname()[0]))
+                        print('Local iP: {}\nGlobal iP: {}'.format(s.getsockname()[0], concurrent.futures.ThreadPoolExecutor().submit(urllib.request.urlopen, urllib.request.Request('http://checkip.amazonaws.com', headers=user_agent)).result().read().decode(errors='ignore').split('\n')[0]))
                 except:
                     pass
             elif Args[0] == 'cd':
@@ -1090,7 +1091,7 @@ def main():
             else:
                 Argument_Paser(INPUT_Argument.split(' '))
         except KeyboardInterrupt:
-            sys.exit(0)
+            break
         if not is_Exits:
             break
 
