@@ -1088,6 +1088,16 @@ def main():
                         FileName = INPUT_Argument.replace(' ', '').split('>')[1]
                     with open(FileName, 'w', encoding='utf-8') as text:
                         text.write(ArgV)
+            elif '&&' in INPUT_Argument:
+                if ' && ' in INPUT_Argument:
+                    for argm in INPUT_Argument.split(' && '):
+                        concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, [argm])
+                elif '&&' in INPUT_Argument:
+                    for argm2 in INPUT_Argument.split('&&'):
+                        concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, [argm2])
+            elif '&' in INPUT_Argument:
+                INPUT_Argument = INPUT_Argument.replace(' &', '')
+                concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, INPUT_Argument.split(' '))
             else:
                 Argument_Paser(INPUT_Argument.split(' '))
         except KeyboardInterrupt:
