@@ -5,11 +5,10 @@
 import code, console, clipboard, concurrent.futures, os, objc_util, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, socket, requests, ui
 from console import set_color as setColor
 from lib2to3.main import main as _2to3_main
-from io import BytesIO
+from io import BytesIO, StringIO
 from platform import python_version
 from platform import node as hostname
 from urllib.error import URLError
-from io import StringIO
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -92,7 +91,11 @@ def Argument_Paser(Args):
             elif Args[0] == 'cat':
                 try:
                     if not Args[1] == '-h':
-                        print(readfile(Args[1]))
+                        ViewFile = readfile(Args[1])
+                        if ViewFile[1] == '0':
+                            print(ViewFile[0])
+                        elif ViewFile[1] == '1':
+                            print(BytesIO(ViewFile[0]).getvalue())
                 except:
                     pass
             elif Args[0] == '2to3':
@@ -574,113 +577,113 @@ def detect_file(file):
         setColor(255, 1, 0)
         return file
     elif file.split('.')[-1].lower() == 'md':
-            setColor()
-            setColor(0, 102, 0)
-            return file
+        setColor()
+        setColor(0, 102, 0)
+        return file
     elif file.split('.')[-1].lower() == 'MD':
-            setColor()
-            setColor(0, 102, 0)
-            return file
+        setColor()
+        setColor(0, 102, 0)
+        return file
     elif file.split('.')[-1].lower() == 'mp4':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'm4v':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'avi':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'webm':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'flv':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'wmv':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'mov':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'm4a':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'mp3':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'ogg':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'aac':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'flac':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'aiff':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'wav':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'wma':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'asf':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'oga':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'alac':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'ape':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'mac':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'tta':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'mka':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'mkv':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'aif':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif file.split('.')[-1].lower() == 'aifc':
-            setColor()
-            setColor(255, 0, 0)
-            return file
+        setColor()
+        setColor(255, 0, 0)
+        return file
     elif os.path.islink(os.path.join(os.getcwd(), file)):
         setColor()
         setColor(255, 0, 255)
@@ -810,9 +813,17 @@ def ping(host):
 def readfile(Name):
     try:
         rfile = open(Name, 'r', encoding='utf-8').read()
-        return rfile
+        return rfile, '0'
     except:
-        pass
+        try:
+            rfile = open(Name, 'rb').read().decode()
+            return rfile, '1'
+        except:
+            try:
+                rfile = open(Name, 'rb').read()
+                return rfile, '1'
+            except:
+                pass
 
 def run_stash_bin(cmdName, Sargs):
     try:
@@ -1062,32 +1073,56 @@ def main():
                     concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, INPUT_Arguments)
             elif '>>' in INPUT_Argument:
                 with StringIO() as St:
-                    sys.stdout = St
-                    INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
-                    concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
-                    Argument_Paser(INPUT_Arguments)
-                    ArgV = St.getvalue()
-                    sys.stdout = BackupSTDOUT
+                    if '&' in INPUT_Argument:
+                        INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
+                        sys.stdout = St
+                        INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
+                        concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
+                        concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, INPUT_Arguments)
+                        ArgV = St.getvalue()
+                        sys.stdout = BackupSTDOUT
+                    else:
+                        sys.stdout = St
+                        INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
+                        concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
+                        Argument_Paser(INPUT_Arguments)
+                        ArgV = St.getvalue()
+                        sys.stdout = BackupSTDOUT
                     if '$' in INPUT_Argument.replace(' ', '').split('>>')[1]:
                         FileName = INPUT_Argument.replace(' ', '').split('>>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0], '')
                     else:
                         FileName = INPUT_Argument.replace(' ', '').split('>>')[1]
-                    with open(FileName, 'a', encoding='utf-8') as text:
-                        text.write(ArgV)
+                    if "b'" in ArgV:
+                        print('ERROR: Readed MediaFiles?')
+                    else:
+                        with open(FileName, 'wb') as text:
+                            text.write(ArgV.encode())
             elif '>' in INPUT_Argument:
                 with StringIO() as St:
-                    sys.stdout = St
-                    INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
-                    concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
-                    Argument_Paser(INPUT_Arguments)
-                    ArgV = St.getvalue()
-                    sys.stdout = BackupSTDOUT
+                    if '&' in INPUT_Argument:
+                        INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
+                        sys.stdout = St
+                        INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
+                        concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
+                        concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments)
+                        ArgV = St.getvalue()
+                        sys.stdout = BackupSTDOUT
+                    else:
+                        sys.stdout = St
+                        INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
+                        concurrent.futures.ThreadPoolExecutor().submit(delelemnts, INPUT_Arguments).result()
+                        Argument_Paser(INPUT_Arguments)
+                        ArgV = St.getvalue()
+                        sys.stdout = BackupSTDOUT
                     if '$' in INPUT_Argument.replace(' ', '').split('>')[1]:
                         FileName = INPUT_Argument.replace(' ', '').split('>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0], '')
                     else:
                         FileName = INPUT_Argument.replace(' ', '').split('>')[1]
-                    with open(FileName, 'w', encoding='utf-8') as text:
-                        text.write(ArgV)
+                    if "b'" in ArgV:
+                        print('ERROR: Readed MediaFiles?')
+                    else:
+                        with open(FileName, 'wb') as text:
+                            text.write(ArgV.encode())
             elif '&&' in INPUT_Argument:
                 if ' && ' in INPUT_Argument:
                     for argm in INPUT_Argument.split(' && '):
@@ -1096,7 +1131,7 @@ def main():
                     for argm2 in INPUT_Argument.split('&&'):
                         concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, [argm2])
             elif '&' in INPUT_Argument:
-                INPUT_Argument = INPUT_Argument.replace(' &', '')
+                INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
                 concurrent.futures.ThreadPoolExecutor().submit(Argument_Paser, INPUT_Argument.split(' '))
             else:
                 Argument_Paser(INPUT_Argument.split(' '))
