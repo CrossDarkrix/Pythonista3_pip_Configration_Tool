@@ -11,7 +11,7 @@ import stat        # to analyze stat results
 import io
 import ui          # duh
 import webbrowser
-import code, console, clipboard, concurrent.futures, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, socket, requests, ui, platform
+import code, console, clipboard, concurrent.futures, os, re, shutil, socket, sys, urllib.request, time, tarfile, zipfile, urllib.parse, ssl, socket, requests, ui, platform, qrcode
 from lib2to3.main import main as _2to3_main
 from io import BytesIO, StringIO
 from urllib.error import URLError
@@ -21,6 +21,20 @@ ssl._create_default_https_context = ssl._create_unverified_context
 Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), platform.node()), '', '']
 HOME_DIC = os.getcwd()
 is_Exits = True
+
+class QRCodeView(object):
+    def __init__(self, url):
+        self.url = url
+        self.filename = 'tmpQR.png'
+        self.tmpFolder = tempfile.gettempdir()
+        self.tempPath = os.path.join(self.tmpFolder, self.filename)
+        qrcode.make(self.url).save(self.tempPath)
+
+    def __enter__(self):
+        return self.tempPath
+
+    def __exit__(self, _, __, ___):
+        os.remove(self.tempPath)
 
 class ImageLoad(object):
     def __init__(self):
@@ -351,6 +365,8 @@ class pipTerminal(object):
             print('Usage: unzip [-h] [file]')
         if Args[1] == '-h' and Args[0] == 'zip':
             print('Usage: zip [-h] [OutPutFileName] [Target]')
+        if Args[1] == '-h' and Args[0] == 'qrcode':
+            print('Usage: qrcode [-h] [URL]')
 
     def git_clone(self, gitArgs):
         try:
@@ -893,6 +909,15 @@ class pipTerminal(object):
                                 os.makedirs(Args[2], exist_ok=True)
                             else:
                                 os.makedirs(Args[1], exist_ok=True)
+                        else:
+                            self.argument_help(Args)
+                    except:
+                        pass
+                elif Args[0] == 'qrcode':
+                    try:
+                        if not Args[1] == '-h' or not Args[1] == '--help':
+                            with QRCodeView(Args[1]) as QR:
+                                print('{}'.format(console.show_image(QR)).split('None')[0])
                         else:
                             self.argument_help(Args)
                     except:
