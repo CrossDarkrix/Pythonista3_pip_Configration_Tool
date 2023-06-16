@@ -6,9 +6,27 @@ Version: 2.0.8
 Author: DarkRix.
 """
 
-import clipboard, code, console, concurrent.futures, io, lib2to3.main, os, re, requests, shutil, socket, ssl, sys, ui, urllib.error, urllib.request, urllib.parse, platform, time, tarfile, zipfile
+import base64, clipboard, code, console, concurrent.futures, io, lib2to3.main, os, re, requests, shutil, socket, ssl, sys, ui, urllib.error, urllib.request, urllib.parse, platform, time, tarfile, zipfile
+from PIL import Image
 
 ssl._create_default_https_context = ssl._create_unverified_context
+
+class ImageLoad(object):
+    def __init__(self):
+        self.ImageData = None
+        self.Image = Image
+        Image.Image.tostring = self.tostring
+
+    def tostring(self):
+        return self.ImageData.tobytes()
+
+    def open(self, fp):
+        try:
+            self.ImageData = self.Image.open(fp).convert('RGBA')
+            return self.Image.open(fp).convert('RGBA')
+        except:
+            self.ImageData = self.Image.open(fp)
+            return self.Image.open(fp)
 
 class pipTerminal(object):
     def __init__(self):
@@ -16,6 +34,7 @@ class pipTerminal(object):
         self.BackupSTDOUT = sys.stdout
         self.is_Exits = True
         self.HOME_DIC = os.getcwd()
+        self.printed_STDOUT = [None]
         try:
             os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
             os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
@@ -426,19 +445,14 @@ class pipTerminal(object):
         return ping_result
 
     def readfile(self, Name):
-        try:
-            rfile = open(Name, 'r', encoding='utf-8').read()
-            return rfile, '0'
-        except:
-            try:
-                rfile = open(Name, 'rb').read().decode()
-                return rfile, '1'
-            except:
-                try:
-                    rfile = open(Name, 'rb').read()
-                    return rfile, '1'
-                except:
-                    pass
+        if Name.endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.rgb', '.pgm', '.pbm', '.ppm', '.xbm')):
+            rfile = ImageLoad().open(Name)
+            self.printed_STDOUT[0] = rfile
+            return '3'
+        else:
+            rfile = open(Name, 'rb').read()
+            self.printed_STDOUT[0] = rfile
+            return '0'
 
     def run_stash_bin(self, cmdName, Sargs):
         try:
@@ -677,14 +691,20 @@ class pipTerminal(object):
                 elif Args[0] == 'cat':
                     try:
                         if not Args[1] == '-h' or not Args[1] == '--help':
-                            ViewFile = readfile(Args[1])
-                            if ViewFile[1] == '0':
-                                print(ViewFile[0])
+                            ViewFile = self.readfile(Args[1])
+                            if ViewFile[0] == '0':
+                                try:
+                                    print(self.printed_STDOUT[0].decode())
+                                except:
+                                    print('Error: Read Text File?')
+                            elif ViewFile[0] == '3':
+                               print(Args[1])
                             else:
                                 print('ERROR: Readed MediaFiles?')
                         else:
                             self.argument_help(Args)
-                    except:
+                    except Exception as E:
+                        print(E)
                         pass
                 elif Args[0] == '2to3':
                     try:
@@ -696,10 +716,9 @@ class pipTerminal(object):
                         pass
                 elif Args[0] == 'pbcopy':
                     try:
-                        clipboard.set('')
+                        clipboard.set_image(Args[1])
                     except:
-                        pass
-                    concurrent.futures.ThreadPoolExecutor().submit(clipboard.set, str(Args[1]))
+                        clipboard.set(str(Args[1]))
                 elif Args[0] == 'pbpaste':
                     try:
                         print(clipboard.get())
@@ -1041,7 +1060,15 @@ class pipTerminal(object):
                     with io.StringIO() as St:
                         sys.stdout = St
                         self.Argument_Paser(INPUT_Argument.split('|')[0].split(' '))
-                        INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], St.getvalue().replace('\r', '').replace('\n', '')]
+                        if not self.printed_STDOUT[0] == None:
+                            printed = self.printed_STDOUT[0]
+                            try:
+                                INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                            except:
+                                INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                        else:
+                            printed = St.getvalue()
+                            INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
                         sys.stdout = self.BackupSTDOUT
                         concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Arguments)
                 elif '>>' in INPUT_Argument:
@@ -1052,23 +1079,32 @@ class pipTerminal(object):
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Arguments)
-                            ArgV = St.getvalue()
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
                             sys.stdout = self.BackupSTDOUT
                         else:
                             sys.stdout = St
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             self.Argument_Paser(INPUT_Arguments)
-                            ArgV = St.getvalue()
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
                             sys.stdout = self.BackupSTDOUT
                         if '$' in INPUT_Argument.replace(' ', '').split('>>')[1]:
                             FileName = INPUT_Argument.replace(' ', '').split('>>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0], '')
                         else:
                             FileName = INPUT_Argument.replace(' ', '').split('>>')[1]
-                        if "b'" in ArgV:
-                            print('ERROR: Readed MediaFiles?')
+                        if type(ArgV) == type(bytes()):
+                            with open(FileName, 'ab') as text:
+                                text.write(ArgV)
+                        elif type(ArgV) == Image.Image:
+                            ArgV.save(FileName, 'png')
                         else:
-                            with open(FileName, 'wb') as text:
+                            with open(FileName, 'ab') as text:
                                 text.write(ArgV.encode())
                 elif '>' in INPUT_Argument:
                     with io.StringIO() as St:
@@ -1078,22 +1114,32 @@ class pipTerminal(object):
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments)
-                            ArgV = St.getvalue()
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
                             sys.stdout = self.BackupSTDOUT
                         else:
                             sys.stdout = St
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             self.Argument_Paser(INPUT_Arguments)
-                            ArgV = St.getvalue()
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
                             sys.stdout = self.BackupSTDOUT
                         if '$' in INPUT_Argument.replace(' ', '').split('>')[1]:
                             FileName = INPUT_Argument.replace(' ', '').split('>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0], '')
                         else:
                             FileName = INPUT_Argument.replace(' ', '').split('>')[1]
-                        if "b'" in ArgV:
-                            print('ERROR: Readed MediaFiles?')
+                        if type(ArgV) == type(bytes()):
+                            with open(FileName, 'wb') as text:
+                                text.write(ArgV)
+                        elif type(ArgV) == Image.Image:
+                            ArgV.save(FileName, 'png')
                         else:
+                            print(type(ArgV))
                             with open(FileName, 'wb') as text:
                                 text.write(ArgV.encode())
                 elif '&&' in INPUT_Argument:
@@ -1109,11 +1155,14 @@ class pipTerminal(object):
                 else:
                     self.Argument_Paser(INPUT_Argument.split(' '))
                 sys.stdout = self.BackupSTDOUT
+                self.printed_STDOUT = [None]
             except KeyboardInterrupt:
                 sys.stdout = self.BackupSTDOUT
+                self.printed_STDOUT = [None]
                 break
             if not self.is_Exits:
                 sys.stdout = self.BackupSTDOUT
+                self.printed_STDOUT = [None]
                 break
 
 if __name__ == '__main__':
@@ -1121,4 +1170,3 @@ if __name__ == '__main__':
         pipTerminal().main()
     except KeyboardInterrupt:
         pass
-
