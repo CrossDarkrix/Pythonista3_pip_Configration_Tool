@@ -709,7 +709,7 @@ class pipTerminal(object):
                                 except:
                                     print('Error: Read Text File?')
                             elif ViewFile[0] == '3':
-                               print(Args[1])
+                               print('{}'.format(console.show_image(Args[1])).split('None')[0])
                             else:
                                 print('ERROR: Readed MediaFiles?')
                         else:
