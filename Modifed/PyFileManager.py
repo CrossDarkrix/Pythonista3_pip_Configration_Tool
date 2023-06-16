@@ -22,8 +22,30 @@ Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), platform.node()), '', '']
 HOME_DIC = os.getcwd()
 is_Exits = True
 
+class ImageLoad(object):
+    def __init__(self):
+        self.ImageData = None
+        self.Image = Image
+        Image.Image.tostring = self.tostring
+
+    def tostring(self):
+        return self.ImageData.tobytes()
+
+    def open(self, fp):
+        try:
+            self.ImageData = self.Image.open(fp).convert('RGBA')
+            return self.Image.open(fp).convert('RGBA')
+        except:
+            self.ImageData = self.Image.open(fp)
+            return self.Image.open(fp)
+
 class pipTerminal(object):
     def __init__(self):
+        self.Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), platform.node()), '', '']
+        self.BackupSTDOUT = sys.stdout
+        self.is_Exits = True
+        self.HOME_DIC = os.getcwd()
+        self.printed_STDOUT = [None]
         try:
             os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
             os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
@@ -39,7 +61,7 @@ class pipTerminal(object):
         except:
             pass
         try:
-            _2to3_main('lib2to3.fixes')
+            lib2to3.main.main('lib2to3.fixes')
         except:
             pass
 
@@ -348,14 +370,14 @@ class pipTerminal(object):
             try:
                 RESPONSE_DATA = urllib.request.urlopen(urllib.request.Request(fURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity'})).read()
                 master_name = 'master'
-            except URLError:
+            except urllib.error.URLError:
                 reURL = 'https://github.com/{}/{}'.format(UserName, ProjectName)
                 FFdata = urllib.request.urlopen(urllib.request.Request(reURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity'})).read()
                 Pattern = '{}/{}/tree/(.*?)/'.format(UserName, ProjectName)
                 master_name = re.findall(Pattern, str(FFdata))[-1]
                 ffURL = 'https://codeload.github.com/{}/{}/zip/{}'.format(UserName, ProjectName, master_name)
                 RESPONSE_DATA = urllib.request.urlopen(urllib.request.Request(ffURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity', 'HOSTS': 'github.com'})).read()
-            with zipfile.ZipFile(BytesIO(RESPONSE_DATA), 'r') as Fzip:
+            with zipfile.ZipFile(io.BytesIO(RESPONSE_DATA), 'r') as Fzip:
                 Fzip.extractall(gitPATH+'/.')
             vName = gitFileName + '-' + master_name
             if os.path.exists(vName):
@@ -434,19 +456,14 @@ class pipTerminal(object):
         return ping_result
 
     def readfile(self, Name):
-        try:
-            rfile = open(Name, 'r', encoding='utf-8').read()
-            return rfile, '0'
-        except:
-            try:
-                rfile = open(Name, 'rb').read().decode()
-                return rfile, '1'
-            except:
-                try:
-                    rfile = open(Name, 'rb').read()
-                    return rfile, '1'
-                except:
-                    pass
+        if Name.endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.rgb', '.pgm', '.pbm', '.ppm', '.xbm')):
+            rfile = ImageLoad().open(Name)
+            self.printed_STDOUT[0] = rfile
+            return '3'
+        else:
+            rfile = open(Name, 'rb').read()
+            self.printed_STDOUT[0] = rfile
+            return '0'
 
     def run_stash_bin(self, cmdName, Sargs):
         try:
@@ -685,14 +702,20 @@ class pipTerminal(object):
                 elif Args[0] == 'cat':
                     try:
                         if not Args[1] == '-h' or not Args[1] == '--help':
-                            ViewFile = readfile(Args[1])
-                            if ViewFile[1] == '0':
-                                print(ViewFile[0])
+                            ViewFile = self.readfile(Args[1])
+                            if ViewFile[0] == '0':
+                                try:
+                                    print(self.printed_STDOUT[0].decode())
+                                except:
+                                    print('Error: Read Text File?')
+                            elif ViewFile[0] == '3':
+                               print(Args[1])
                             else:
                                 print('ERROR: Readed MediaFiles?')
                         else:
                             self.argument_help(Args)
-                    except:
+                    except Exception as E:
+                        print(E)
                         pass
                 elif Args[0] == '2to3':
                     try:
@@ -704,10 +727,9 @@ class pipTerminal(object):
                         pass
                 elif Args[0] == 'pbcopy':
                     try:
-                        clipboard.set('')
+                        clipboard.set_image(Args[1])
                     except:
-                        pass
-                    concurrent.futures.ThreadPoolExecutor().submit(clipboard.set, str(Args[1]))
+                        clipboard.set(str(Args[1]))
                 elif Args[0] == 'pbpaste':
                     try:
                         print(clipboard.get())
@@ -745,12 +767,12 @@ class pipTerminal(object):
                                         print('ERROR:{}'.format(E))
                             except IndexError:
                                 try:
-                                    os.chdir(HOME_DIC)
+                                    os.chdir(self.HOME_DIC)
                                 except Exception as E:
                                     print('ERROR:{}'.format(E))
                                 if Args[1] == '' or Args[1] == ' ':
                                     try:
-                                        os.chdir(HOME_DIC)
+                                        os.chdir(self.HOME_DIC)
                                     except Exception as E:
                                         print('ERROR:{}'.format(E))
                             except:
@@ -759,7 +781,7 @@ class pipTerminal(object):
                             self.argument_help(Args)
                     except:
                         try:
-                            os.chdir(HOME_DIC)
+                            os.chdir(self.HOME_DIC)
                         except Exception as E:
                             print('ERROR:{}'.format(E))
                 elif Args[0] == 'cp':
@@ -1007,7 +1029,7 @@ class pipTerminal(object):
                         pass
                 elif Args[0] == 'exit':
                     print('Exiting.......')
-                    is_Exits = False
+                    self.is_Exits = False
                 elif Args[0] == 'clear' or Args[0] == 'cls':
                     console.clear()
                 elif Args[0] == '' or Args[0] == ' ':
@@ -1015,25 +1037,25 @@ class pipTerminal(object):
                 else:
                     self.run_other_cmd(Args[0], Args[1:])
             except KeyboardInterrupt:
-                is_Exits = False
+                self.is_Exits = False
         except KeyboardInterrupt:
-            is_Exits = False
+            self.is_Exits = False
 
     @ui.in_background
     def main(self, cmd=''):
         self.__init__()
         print(self.SystemLogo())
         console.set_color()
-        while is_Exits:
+        while self.is_Exits:
             try:
                 console.set_color(0, 102, 0)
-                Command_DIRNAME[2] = ''
-                print(Command_DIRNAME[0], end='\r', flush=True)
+                self.Command_DIRNAME[2] = ''
+                print(self.Command_DIRNAME[0], end='\r', flush=True)
                 console.set_color()
                 print(':', end='', flush=True)
                 console.set_color(0, 10, 255)
                 try:
-                    Command_DIRNAME[2] = os.getcwd().replace(os.getenv('HOME'), '~')
+                    self.Command_DIRNAME[2] = os.getcwd().replace(os.getenv('HOME'), '~')
                 except Exception as Err:
                    print(Err)
                    try:
@@ -1041,9 +1063,9 @@ class pipTerminal(object):
                    except:
                       print('Occurred Some Errors,\nExiting.........')
                       sys.exit(0)
-                print(Command_DIRNAME[2], end='', flush=True)
+                print(self.Command_DIRNAME[2], end='', flush=True)
                 console.set_color()
-                sys.stdout = BackupSTDOUT
+                sys.stdout = self.BackupSTDOUT
                 if cmd == '':
                     INPUT_Argument = input('$ ')
                 elif cmd == 'clear':
@@ -1053,62 +1075,89 @@ class pipTerminal(object):
                     INPUT_Argument = cmd
                     cmd = 'clear'
                 if '|' in INPUT_Argument:
-                    with StringIO() as St:
+                    with io.StringIO() as St:
                         sys.stdout = St
                         self.Argument_Paser(INPUT_Argument.split('|')[0].split(' '))
-                        INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], St.getvalue().replace('\r', '').replace('\n', '')]
-                        sys.stdout = BackupSTDOUT
+                        if not self.printed_STDOUT[0] == None:
+                            printed = self.printed_STDOUT[0]
+                            try:
+                                INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                            except:
+                                INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                        else:
+                            printed = St.getvalue()
+                            INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                        sys.stdout = self.BackupSTDOUT
                         concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Arguments)
                 elif '>>' in INPUT_Argument:
-                    with StringIO() as St:
+                    with io.StringIO() as St:
                         if '&' in INPUT_Argument:
                             INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
                             sys.stdout = St
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Arguments)
-                            ArgV = St.getvalue()
-                            sys.stdout = BackupSTDOUT
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
+                            sys.stdout = self.BackupSTDOUT
                         else:
                             sys.stdout = St
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             self.Argument_Paser(INPUT_Arguments)
-                            ArgV = St.getvalue()
-                            sys.stdout = BackupSTDOUT
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
+                            sys.stdout = self.BackupSTDOUT
                         if '$' in INPUT_Argument.replace(' ', '').split('>>')[1]:
                             FileName = INPUT_Argument.replace(' ', '').split('>>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0], '')
                         else:
                             FileName = INPUT_Argument.replace(' ', '').split('>>')[1]
-                        if "b'" in ArgV:
-                            print('ERROR: Readed MediaFiles?')
+                        if type(ArgV) == type(bytes()):
+                            with open(FileName, 'ab') as text:
+                                text.write(ArgV)
+                        elif type(ArgV) == Image.Image:
+                            ArgV.save(FileName, 'png')
                         else:
-                            with open(FileName, 'wb') as text:
+                            with open(FileName, 'ab') as text:
                                 text.write(ArgV.encode())
                 elif '>' in INPUT_Argument:
-                    with StringIO() as St:
+                    with io.StringIO() as St:
                         if '&' in INPUT_Argument:
                             INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
                             sys.stdout = St
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments)
-                            ArgV = St.getvalue()
-                            sys.stdout = BackupSTDOUT
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
+                            sys.stdout = self.BackupSTDOUT
                         else:
                             sys.stdout = St
                             INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
                             concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
                             self.Argument_Paser(INPUT_Arguments)
-                            ArgV = St.getvalue()
-                            sys.stdout = BackupSTDOUT
+                            if not self.printed_STDOUT[0] == None:
+                                ArgV = self.printed_STDOUT[0]
+                            else:
+                                ArgV = St.getvalue()
+                            sys.stdout = self.BackupSTDOUT
                         if '$' in INPUT_Argument.replace(' ', '').split('>')[1]:
                             FileName = INPUT_Argument.replace(' ', '').split('>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0], '')
                         else:
                             FileName = INPUT_Argument.replace(' ', '').split('>')[1]
-                        if "b'" in ArgV:
-                            print('ERROR: Readed MediaFiles?')
+                        if type(ArgV) == type(bytes()):
+                            with open(FileName, 'wb') as text:
+                                text.write(ArgV)
+                        elif type(ArgV) == Image.Image:
+                            ArgV.save(FileName, 'png')
                         else:
+                            print(type(ArgV))
                             with open(FileName, 'wb') as text:
                                 text.write(ArgV.encode())
                 elif '&&' in INPUT_Argument:
@@ -1123,9 +1172,15 @@ class pipTerminal(object):
                     concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Argument.split(' '))
                 else:
                     self.Argument_Paser(INPUT_Argument.split(' '))
+                sys.stdout = self.BackupSTDOUT
+                self.printed_STDOUT = [None]
             except KeyboardInterrupt:
+                sys.stdout = self.BackupSTDOUT
+                self.printed_STDOUT = [None]
                 break
-            if not is_Exits:
+            if not self.is_Exits:
+                sys.stdout = self.BackupSTDOUT
+                self.printed_STDOUT = [None]
                 break
 
 def full_path(path):
@@ -1569,8 +1624,8 @@ class FileDataSource(object):
                     nav.close()
                 elif filetype == "audio":
                     spath = rel_to_app(fi.path.rsplit(".", 1)[0])
-                    #sound.load_effect(spath)
-                    #sound.play_effect(spath)
+                    sound.load_effect(spath)
+                    sound.play_effect(spath)
                 elif filetype == "image":
                     console.show_image(fi.path)
                 else:
@@ -1743,8 +1798,8 @@ class StatDataSource(object):
         elif key == "sound-playsound":
             # Play Sound - sound
             spath = rel_to_app(self.fi.path.rsplit(".", 1)[0])
-            #sound.load_effect(spath)
-            #sound.play_effect(spath)
+            sound.load_effect(spath)
+            sound.play_effect(spath)
         elif key == "webbrowser-open":
             # Open Website - webbrowser
             webbrowser.open("file://" + self.fi.path)
