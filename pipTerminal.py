@@ -6,10 +6,24 @@ Version: 2.0.8
 Author: DarkRix.
 """
 
-import base64, clipboard, code, console, concurrent.futures, io, lib2to3.main, os, re, requests, shutil, socket, ssl, sys, ui, urllib.error, urllib.request, urllib.parse, platform, time, tarfile, zipfile
+import base64, clipboard, code, console, concurrent.futures, io, lib2to3.main, os, re, requests, shutil, socket, ssl, sys, ui, urllib.error, urllib.request, urllib.parse, platform, qrcode, tempfile, time, tarfile, zipfile
 from PIL import Image
 
 ssl._create_default_https_context = ssl._create_unverified_context
+
+class QRCodeView(object):
+    def __init__(self, url):
+        self.url = url
+        self.filename = 'tmpQR.png'
+        self.tmpFolder = tempfile.gettempdir()
+        self.tempPath = os.path.join(self.tmpFolder, self.filename)
+        qrcode.make(self.url).save(self.tempPath)
+
+    def __enter__(self):
+        return self.tempPath
+
+    def __exit__(self, _, __, ___):
+        os.remove(self.tempPath)
 
 class ImageLoad(object):
     def __init__(self):
@@ -340,6 +354,8 @@ class pipTerminal(object):
             print('Usage: unzip [-h] [file]')
         if Args[1] == '-h' and Args[0] == 'zip':
             print('Usage: zip [-h] [OutPutFileName] [Target]')
+        if Args[1] == '-h' and Args[0] == 'qrcode':
+            print('Usage: qrcode [-h] [URL]')
 
     def git_clone(self, gitArgs):
         try:
@@ -687,7 +703,7 @@ class pipTerminal(object):
                 pass
             try:
                 if Args[0] == 'help':
-                    print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + self.list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + self.list_stash_bin())
+                    print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + self.list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + self.list_stash_bin())
                 elif Args[0] == 'cat':
                     try:
                         if not Args[1] == '-h' or not Args[1] == '--help':
@@ -880,6 +896,15 @@ class pipTerminal(object):
                                 os.makedirs(Args[2], exist_ok=True)
                             else:
                                 os.makedirs(Args[1], exist_ok=True)
+                        else:
+                            self.argument_help(Args)
+                    except:
+                        pass
+                elif Args[0] == 'qrcode':
+                    try:
+                        if not Args[1] == '-h' or not Args[1] == '--help':
+                            with QRCodeView(Args[1]) as QR:
+                                print('{}'.format(console.show_image(QR)).split('None')[0])
                         else:
                             self.argument_help(Args)
                     except:
