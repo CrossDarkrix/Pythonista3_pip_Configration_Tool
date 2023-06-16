@@ -698,9 +698,7 @@ class pipTerminal(object):
                                 except:
                                     print('Error: Read Text File?')
                             elif ViewFile[0] == '3':
-                               print(Args[1])
-                            else:
-                                print('ERROR: Readed MediaFiles?')
+                               print('{}'.format(console.show_image(Args[1])).split('None')[0])
                         else:
                             self.argument_help(Args)
                     except Exception as E:
