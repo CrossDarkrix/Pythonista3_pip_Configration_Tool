@@ -2,12 +2,13 @@
 
 """
 Pythonista3 Console Terminal.
-Version: 2.0.8
+Version: 2.1.0
 Author: DarkRix.
 """
 
-import base64, clipboard, code, console, concurrent.futures, io, lib2to3.main, os, re, requests, shutil, socket, ssl, sys, urllib.error, urllib.request, urllib.parse, platform, qrcode, tempfile, time, tarfile, zipfile
+import base64, code, console, concurrent.futures, io, lib2to3.main, os, re, requests, shutil, socket, ssl, sys, urllib.error, urllib.request, urllib.parse, platform, qrcode, tempfile, time, tarfile, zipfile
 from PIL import Image
+from objc_util import ObjCClass
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -72,6 +73,19 @@ class pipTerminal(object):
         console.clear()
         console.set_color(255, 0, 0) # red
         return "{}\n| - pyTerminal v2.0.8 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, platform.python_version(), "-"*41)
+
+    def pbcopy(self, text: str): # Copy String
+        if type(text) == str: # text file...
+            ObjCClass('UIPasteboard').generalPasteboard().setString(text)
+        else: # Image file...
+            ObjCClass('UIPasteboard').generalPasteboard().setImage_(ObjCClass('UIImage').imageWithData_(text))
+
+    def pbpaste(self): # Paste
+        if ObjCClass('UIPasteboard').generalPasteboard().string() is not None:
+            return ObjCClass('UIPasteboard').generalPasteboard().string().UTF8String().decode()
+        else:
+            return ''
+
 
     def copyFiles(self, FileName, dest):
         try:
@@ -728,20 +742,11 @@ class pipTerminal(object):
                     except:
                         pass
                 elif Args[0] == 'pbcopy':
-                    try:
-                        clipboard.set_image(Args[1])
-                    except:
-                        clipboard.set(str(Args[1]))
+                    self.pbcopy(Args[1])
                 elif Args[0] == 'pbpaste':
-                    try:
-                        print(clipboard.get())
-                    except:
-                        pass
+                    self.pbpaste()
                 elif Args[0] == 'delclip':
-                    try:
-                        clipboard.set('')
-                    except:
-                        pass
+                    self.pbcopy('')
                 elif Args[0] == 'showip':
                     try:
                         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
