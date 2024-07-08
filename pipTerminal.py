@@ -717,7 +717,13 @@ class pipTerminal(object):
                 pass
             try:
                 if Args[0] == 'help':
-                    print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + self.list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + self.list_stash_bin())
+                    try:
+                        print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + self.list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + self.list_stash_bin())
+                    except:
+                        try:
+                            print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + self.list_other_cmd())
+                        except:
+                            print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n')
                 elif Args[0] == 'cat':
                     try:
                         if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
