@@ -1,4 +1,6 @@
-import os, urllib.request
+import os, urllib.request, ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def setting_pip():
     FirstDic = os.getcwd()
