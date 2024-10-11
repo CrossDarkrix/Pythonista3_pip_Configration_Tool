@@ -49,4 +49,5 @@ def main():
     print('All Installation Done!')
     print('Please Restart Pythonista!')
 
-main()
+if __name__ == '__main__':
+    main()
