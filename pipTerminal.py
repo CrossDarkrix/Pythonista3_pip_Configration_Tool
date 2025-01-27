@@ -816,8 +816,11 @@ class pipTerminal(object):
                                     env_data = os.getenv(Args[1][1:])
                                     if not env_data is None:
                                         print(env_data)
+                                else:
+                                    print(Args[1])
                             except:
-                                pass
+                                print(Args[1])
+                            
                         else:
                             pass
                     except IndexError:
