@@ -896,7 +896,14 @@ class pipTerminal(object):
                         if os.path.exists(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib', 'python3.1', 'site-packages')):
                             shutil.copytree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib', 'python3.1', 'site-packages'), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages'), dirs_exist_ok=True)
                             shutil.rmtree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib'))
-                            self.__init__()
+                            try:
+                                os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
+                                os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
+                                shutil.copytree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), dirs_exist_ok=True)
+                                shutil.rmtree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'))
+                                os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
+                            except:
+                                pass
                     except:
                         pass
                 elif Args[0] == 'mkdir':
