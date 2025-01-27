@@ -817,7 +817,8 @@ class pipTerminal(object):
                                     if not env_data is None:
                                         print(env_data)
                                 else:
-                                    print(Args[1])
+                                    if Args[1][0] == '"':
+                                        print(Args[1].replace('"', ""))
                             except:
                                 print(Args[1])
                             
