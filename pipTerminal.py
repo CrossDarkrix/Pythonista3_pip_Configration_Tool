@@ -818,7 +818,7 @@ class pipTerminal(object):
                                         print(env_data)
                                 else:
                                     if Args[1][0] == '"' and Args[1][-1] == '"':
-                                        print(' '.join(re.findall('"(.+)"', Args[1]))
+                                        print(' '.join(re.findall('"(.+)"', Args[1])))
                             except:
                                 print(Args[1])
                             
