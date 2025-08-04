@@ -6,6 +6,11 @@
 ```Python
 import requests as r; exec(r.get('https://tinyurl.com/Setup-pipTerminal').content)
 ```
+*For Pythonista >= 3.4*
+```python
+import requests as r; exec(r.get('https://raw.githubusercontent.com/o-murphy/Pythonista3_pip_Configration_Tool/main/Setup-pipTerminal2.py').content)
+```
+
 *And restart Pythonista.*
 
 *Installation Done!*

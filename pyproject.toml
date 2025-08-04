@@ -1,0 +1,15 @@
+[project]
+name = "pythonista3-pip-configration-tool"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pillow>=11.3.0",
+    "pip>=25.2",
+    "requests>=2.32.4",
+    "ruff>=0.12.7",
+]

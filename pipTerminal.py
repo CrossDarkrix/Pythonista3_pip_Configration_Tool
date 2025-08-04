@@ -6,16 +6,63 @@ Version: 2.1.0
 Author: DarkRix.
 """
 
-import base64, code, console, concurrent.futures, io, lib2to3.main, os, re, requests, shutil, socket, ssl, sys, urllib.error, urllib.request, urllib.parse, platform, qrcode, tempfile, time, tarfile, zipfile
+import logging
+import code
+import concurrent.futures
+import io
+import os
+import platform
+import re
+import shutil
+import socket
+import ssl
+import sys
+import tarfile
+import tempfile
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
+from pathlib import Path
+
+import console
+import qrcode
+import requests
 from PIL import Image
 from objc_util import ObjCClass
 
+__version__ = "2.0.8"
+
 ssl._create_default_https_context = ssl._create_unverified_context
+
+
+def interp_dir_name():
+    return "python{x}.{y}".format(x=sys.version_info[0], y=sys.version_info[1])
+
+
+HOME = Path("~").expanduser()
+DOCUMENTS = HOME / "Documents"
+SITE_PACKAGES = DOCUMENTS / "site-packages"
+PIP_EXEC_CONTENT = """# -*- coding: utf-8 -*-
+import re
+import sys
+from pip._internal.cli.main import main
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    if 'install' in sys.argv:
+        if not '-t' in sys.argv and not '--target' in sys.argv:
+            sys.argv.extend(['--target', '{TARGET}'])
+
+    sys.exit(main())
+""".format(TARGET=SITE_PACKAGES)
+
 
 class QRCodeView(object):
     def __init__(self, url):
         self.url = url
-        self.filename = 'tmpQR.png'
+        self.filename = "tmpQR.png"
         self.tmpFolder = tempfile.gettempdir()
         self.tempPath = os.path.join(self.tmpFolder, self.filename)
         qrcode.make(self.url).save(self.tempPath)
@@ -25,6 +72,7 @@ class QRCodeView(object):
 
     def __exit__(self, _, __, ___):
         os.remove(self.tempPath)
+
 
 class ImageLoad(object):
     def __init__(self):
@@ -37,55 +85,53 @@ class ImageLoad(object):
 
     def open(self, fp):
         try:
-            self.ImageData = self.Image.open(fp).convert('RGBA')
-            return self.Image.open(fp).convert('RGBA')
+            self.ImageData = self.Image.open(fp).convert("RGBA")
+            return self.Image.open(fp).convert("RGBA")
         except:
             self.ImageData = self.Image.open(fp)
             return self.Image.open(fp)
 
+
 class pipTerminal(object):
     def __init__(self):
-        self.Command_DIRNAME = ['{}@{}'.format(os.getenv('USER'), platform.node()), '', '']
+        self.Command_DIRNAME = [
+            "{}@{}".format(os.getenv("USER"), platform.node()),
+            "",
+            "",
+        ]
         self.BackupSTDOUT = sys.stdout
         self.is_Exits = True
         self.HOME_DIC = os.getcwd()
         self.printed_STDOUT = [None]
-        try:
-            os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
-            os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
-            shutil.copytree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), dirs_exist_ok=True)
-            shutil.rmtree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'))
-            os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
-        except:
-            pass
-
-    def _2to3(self, pyArgs):
-        try:
-            sys.argv[1:] = pyArgs
-        except:
-            pass
-        try:
-            lib2to3.main.main('lib2to3.fixes')
-        except:
-            pass
 
     def SystemLogo(self):
         console.clear()
-        console.set_color(255, 0, 0) # red
-        return "{}\n| - pyTerminal v2.0.8 on Python {}\t\t\t|\n| - Author: DarkRix.\t\t\t\t\t\t|\n| - Show All Command: help\t\t\t\t\t|\n{}\n\n".format("-"*41, platform.python_version(), "-"*41)
+        console.set_color(255, 0, 0)  # red
+        return (
+            "{}\n| - pyTerminal v{} on Python {}\t\t\t|\n| - "
+            "Author: DarkRix.\t\t\t\t\t\t|\n| - "
+            "Show All Command: help\t\t\t\t\t|\n{}\n\n"
+        ).format("-" * 41, __version__, platform.python_version(), "-" * 41)
 
-    def pbcopy(self, text: str): # Copy String
-        if type(text) == str: # text file...
-            ObjCClass('UIPasteboard').generalPasteboard().setString(text)
-        else: # Image file...
-            ObjCClass('UIPasteboard').generalPasteboard().setImage_(ObjCClass('UIImage').imageWithData_(text))
+    def pbcopy(self, text: str):  # Copy String
+        if type(text) == str:  # text file...
+            ObjCClass("UIPasteboard").generalPasteboard().setString(text)
+        else:  # Image file...
+            ObjCClass("UIPasteboard").generalPasteboard().setImage_(
+                ObjCClass("UIImage").imageWithData_(text)
+            )
 
-    def pbpaste(self): # Paste
-        if ObjCClass('UIPasteboard').generalPasteboard().string() is not None:
-            return ObjCClass('UIPasteboard').generalPasteboard().string().UTF8String().decode()
+    def pbpaste(self):  # Paste
+        if ObjCClass("UIPasteboard").generalPasteboard().string() is not None:
+            return (
+                ObjCClass("UIPasteboard")
+                .generalPasteboard()
+                .string()
+                .UTF8String()
+                .decode()
+            )
         else:
-            return ''
-
+            return ""
 
     def copyFiles(self, FileName, dest):
         try:
@@ -97,206 +143,206 @@ class pipTerminal(object):
             pass
 
     def detect_file(self, file):
-        if file.split('.')[-1].lower() == 'py':
+        if file.split(".")[-1].lower() == "py":
             console.set_color(0, 102, 0)
             return file
-        elif file.split('.')[-1].lower() == 'cpp':
+        elif file.split(".")[-1].lower() == "cpp":
             console.set_color()
             console.set_color(0, 102, 0)
             return file
-        elif file.split('.')[-1].lower() == 'c':
+        elif file.split(".")[-1].lower() == "c":
             console.set_color()
             console.set_color(0, 102, 0)
             return file
-        elif file.split('.')[-1].lower() == 'java':
+        elif file.split(".")[-1].lower() == "java":
             console.set_color()
             console.set_color(0, 102, 0)
             return file
-        elif file.split('.')[-1].lower() == 'plist':
+        elif file.split(".")[-1].lower() == "plist":
             console.set_color()
             console.set_color(0, 10, 255)
             return file
-        elif file.split('.')[-1].lower() == 'json':
+        elif file.split(".")[-1].lower() == "json":
             console.set_color()
             console.set_color(0, 10, 255)
             return file
-        elif file.split('.')[-1].lower() == 'jpg':
+        elif file.split(".")[-1].lower() == "jpg":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'jpeg':
+        elif file.split(".")[-1].lower() == "jpeg":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'png':
+        elif file.split(".")[-1].lower() == "png":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'bmp':
+        elif file.split(".")[-1].lower() == "bmp":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'gif':
+        elif file.split(".")[-1].lower() == "gif":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'tiff':
+        elif file.split(".")[-1].lower() == "tiff":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'rgb':
+        elif file.split(".")[-1].lower() == "rgb":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'xbm':
+        elif file.split(".")[-1].lower() == "xbm":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'pbm':
+        elif file.split(".")[-1].lower() == "pbm":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'pgm':
+        elif file.split(".")[-1].lower() == "pgm":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'ppm':
+        elif file.split(".")[-1].lower() == "ppm":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'xbm':
+        elif file.split(".")[-1].lower() == "xbm":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'rast':
+        elif file.split(".")[-1].lower() == "rast":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'zip':
+        elif file.split(".")[-1].lower() == "zip":
             console.set_color()
             console.set_color(255, 1, 0)
             return file
-        elif file.split('.')[-1].lower() == 'rar':
+        elif file.split(".")[-1].lower() == "rar":
             console.set_color()
             console.set_color(255, 1, 0)
             return file
-        elif file.split('.')[-1].lower() == 'tar':
+        elif file.split(".")[-1].lower() == "tar":
             console.set_color()
             console.set_color(255, 1, 0)
             return file
-        elif file.split('.')[-1].lower() == 'bz2':
+        elif file.split(".")[-1].lower() == "bz2":
             console.set_color()
             console.set_color(255, 1, 0)
             return file
-        elif file.split('.')[-1].lower() == 'gz':
+        elif file.split(".")[-1].lower() == "gz":
             console.set_color()
             console.set_color(255, 1, 0)
             return file
-        elif file.split('.')[-1].lower() == 'md':
+        elif file.split(".")[-1].lower() == "md":
             console.set_color()
             console.set_color(0, 102, 0)
             return file
-        elif file.split('.')[-1].lower() == 'MD':
+        elif file.split(".")[-1].lower() == "MD":
             console.set_color()
             console.set_color(0, 102, 0)
             return file
-        elif file.split('.')[-1].lower() == 'mp4':
+        elif file.split(".")[-1].lower() == "mp4":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'm4v':
+        elif file.split(".")[-1].lower() == "m4v":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'avi':
+        elif file.split(".")[-1].lower() == "avi":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'webm':
+        elif file.split(".")[-1].lower() == "webm":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'flv':
+        elif file.split(".")[-1].lower() == "flv":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'wmv':
+        elif file.split(".")[-1].lower() == "wmv":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'mov':
+        elif file.split(".")[-1].lower() == "mov":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'm4a':
+        elif file.split(".")[-1].lower() == "m4a":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'mp3':
+        elif file.split(".")[-1].lower() == "mp3":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'ogg':
+        elif file.split(".")[-1].lower() == "ogg":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'aac':
+        elif file.split(".")[-1].lower() == "aac":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'flac':
+        elif file.split(".")[-1].lower() == "flac":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'aiff':
+        elif file.split(".")[-1].lower() == "aiff":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'wav':
+        elif file.split(".")[-1].lower() == "wav":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'wma':
+        elif file.split(".")[-1].lower() == "wma":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'asf':
+        elif file.split(".")[-1].lower() == "asf":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'oga':
+        elif file.split(".")[-1].lower() == "oga":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'alac':
+        elif file.split(".")[-1].lower() == "alac":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'ape':
+        elif file.split(".")[-1].lower() == "ape":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'mac':
+        elif file.split(".")[-1].lower() == "mac":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'tta':
+        elif file.split(".")[-1].lower() == "tta":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'mka':
+        elif file.split(".")[-1].lower() == "mka":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'mkv':
+        elif file.split(".")[-1].lower() == "mkv":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'aif':
+        elif file.split(".")[-1].lower() == "aif":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
-        elif file.split('.')[-1].lower() == 'aifc':
+        elif file.split(".")[-1].lower() == "aifc":
             console.set_color()
             console.set_color(255, 0, 0)
             return file
@@ -324,52 +370,58 @@ class pipTerminal(object):
             print(e)
 
     def argument_help(self, Args):
-        if Args[1] == '--help':
-            Args[1] = '-h'
-        if Args[1] == '-h' and Args[0] == 'cat':
+        if Args[1] == "--help":
+            Args[1] = "-h"
+        if Args[1] == "-h" and Args[0] == "cat":
             print("Usage: cat [-h] [files [files ...]]")
-        if Args[1] == '-h' and Args[0] == 'cd':
+        if Args[1] == "-h" and Args[0] == "cd":
             print("Usage: cd [-h] [dir]\n\nChange the Current working directory.")
-        if Args[1] == '-h' and Args[0] == 'cp':
+        if Args[1] == "-h" and Args[0] == "cp":
             print("Usage: cd [-h] [dir]\n\nChange the Current working directory.")
-        if Args[1] == '-h' and Args[0] == 'echo':
-            print("Usage: echo [-h]\n\nPrint All arguments to stdout, separated by space")
-        if Args[1] == '-h' and Args[0] == 'delclip':
-            print('Delete Clipboard')
-        if Args[1] == '-h' and Args[0] == 'showip':
-            print('Show you are Local & Global iP Adress')
-        if Args[1] == '-h' and Args[0] == 'git':
-            print('Usage: git clone <url> [path] - clone a remote repository')
-        if Args[1] == '-h' and Args[0] == 'la':
+        if Args[1] == "-h" and Args[0] == "echo":
+            print(
+                "Usage: echo [-h]\n\nPrint All arguments to stdout, separated by space"
+            )
+        if Args[1] == "-h" and Args[0] == "delclip":
+            print("Delete Clipboard")
+        if Args[1] == "-h" and Args[0] == "showip":
+            print("Show you are Local & Global iP Adress")
+        if Args[1] == "-h" and Args[0] == "git":
+            print("Usage: git clone <url> [path] - clone a remote repository")
+        if Args[1] == "-h" and Args[0] == "la":
             print("Usage: la [-h] [-l] [files [files ...]]")
-        if Args[1] == '-h' and Args[0] == 'ls':
+        if Args[1] == "-h" and Args[0] == "ls":
             print("Usage: ls [-h] [-l] [files [files ...]]")
-        if Args[1] == '-h' and Args[0] == 'ln':
+        if Args[1] == "-h" and Args[0] == "ln":
             print("Usage: ln [-h] lhs rhs\n\nCreate Symblic Link.")
-        if Args[1] == '-h' and Args[0] == 'mkdir':
-            print("Usage: mkdir [-h] [-p] dir [dir ...]\n\nCreate a new directory.\nThe parent directory must specified.")
-        if Args[1] == '-h' and Args[0] == 'mv':
-            print("Usage: mv [-h] src [src ...] dest\n\nMove(Rename) a file or directory to a new name, or into a new directory.")
-        if Args[1] == '-h' and Args[0] == 'ping':
+        if Args[1] == "-h" and Args[0] == "mkdir":
+            print(
+                "Usage: mkdir [-h] [-p] dir [dir ...]\n\nCreate a new directory.\nThe parent directory must specified."
+            )
+        if Args[1] == "-h" and Args[0] == "mv":
+            print(
+                "Usage: mv [-h] src [src ...] dest\n\nMove(Rename) a file or directory to a new name, or into a new directory."
+            )
+        if Args[1] == "-h" and Args[0] == "ping":
             print("Usage: ping [-h] [iP]\nDestination\n\nSend ping to network hosts.")
-        if Args[1] == '-h' and Args[0] == 'rm':
+        if Args[1] == "-h" and Args[0] == "rm":
             print("Usage: rm [-h] paths [paths ...]")
-        if Args[1] == '-h' and Args[0] == 'python':
+        if Args[1] == "-h" and Args[0] == "python":
             print("Usage: python [-h] [file]\n\nPython Interactive Shell.")
-        if Args[1] == '-h' and Args[0] == 'py':
+        if Args[1] == "-h" and Args[0] == "py":
             print("Usage: py [-h] [file]\n\nPython Interactive Shell.")
-        if Args[1] == '-h' and Args[0] == 'python3':
+        if Args[1] == "-h" and Args[0] == "python3":
             print("Usage: python3 [-h] [file]\n\nPython Interactive Shell.")
-        if Args[1] == '-h' and Args[0] == 'py3':
+        if Args[1] == "-h" and Args[0] == "py3":
             print("Usage: py3 [-h] [file]\n\nPython Interactive Shell.")
-        if Args[1] == '-h' and Args[0] == 'wget':
+        if Args[1] == "-h" and Args[0] == "wget":
             print("Usage: wget [-h] [url]\n\nA simple File Download.")
-        if Args[1] == '-h' and Args[0] == 'unzip':
-            print('Usage: unzip [-h] [file]')
-        if Args[1] == '-h' and Args[0] == 'zip':
-            print('Usage: zip [-h] [OutPutFileName] [Target]')
-        if Args[1] == '-h' and Args[0] == 'qrcode':
-            print('Usage: qrcode [-h] [URL]')
+        if Args[1] == "-h" and Args[0] == "unzip":
+            print("Usage: unzip [-h] [file]")
+        if Args[1] == "-h" and Args[0] == "zip":
+            print("Usage: zip [-h] [OutPutFileName] [Target]")
+        if Args[1] == "-h" and Args[0] == "qrcode":
+            print("Usage: qrcode [-h] [URL]")
 
     def git_clone(self, gitArgs):
         try:
@@ -381,43 +433,106 @@ class pipTerminal(object):
 
         if len(gitArgs) > 0:
             rURL = gitArgs[0]
-            if rURL.endswith('.git'):
+            if rURL.endswith(".git"):
                 rURL = rURL[:-4]
-            UserName, ProjectName = re.match('https://github.com/(.+)/(.+)', rURL).groups()[0:2]
-            gitFileName = gitPATH + '/' + ProjectName
-            fURL = 'https://github.com/{USER}/{PROJECT}/archive/master.zip'.format(USER=UserName, PROJECT=ProjectName)
+            UserName, ProjectName = re.match(
+                "https://github.com/(.+)/(.+)", rURL
+            ).groups()[0:2]
+            gitFileName = gitPATH + "/" + ProjectName
+            fURL = "https://github.com/{USER}/{PROJECT}/archive/master.zip".format(
+                USER=UserName, PROJECT=ProjectName
+            )
             try:
-                RESPONSE_DATA = urllib.request.urlopen(urllib.request.Request(fURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity'})).read()
-                master_name = 'master'
+                RESPONSE_DATA = urllib.request.urlopen(
+                    urllib.request.Request(
+                        fURL,
+                        headers={
+                            "User-Agent": "Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1",
+                            "Connection": "keep-alive",
+                            "Accept-Encoding": "identity",
+                        },
+                    )
+                ).read()
+                master_name = "master"
             except urllib.error.URLError:
-                reURL = 'https://github.com/{}/{}'.format(UserName, ProjectName)
-                FFdata = urllib.request.urlopen(urllib.request.Request(reURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity'})).read()
-                Pattern = '{}/{}/tree/(.*?)/'.format(UserName, ProjectName)
+                reURL = "https://github.com/{}/{}".format(UserName, ProjectName)
+                FFdata = urllib.request.urlopen(
+                    urllib.request.Request(
+                        reURL,
+                        headers={
+                            "User-Agent": "Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1",
+                            "Connection": "keep-alive",
+                            "Accept-Encoding": "identity",
+                        },
+                    )
+                ).read()
+                Pattern = "{}/{}/tree/(.*?)/".format(UserName, ProjectName)
                 master_name = re.findall(Pattern, str(FFdata))[-1]
-                ffURL = 'https://codeload.github.com/{}/{}/zip/{}'.format(UserName, ProjectName, master_name)
-                RESPONSE_DATA = urllib.request.urlopen(urllib.request.Request(ffURL, headers={'User-Agent': 'Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1','Connection': 'keep-alive','Accept-Encoding': 'identity', 'HOSTS': 'github.com'})).read()
-            with zipfile.ZipFile(io.BytesIO(RESPONSE_DATA), 'r') as Fzip:
-                Fzip.extractall(gitPATH+'/.')
-            vName = gitFileName + '-' + master_name
+                ffURL = "https://codeload.github.com/{}/{}/zip/{}".format(
+                    UserName, ProjectName, master_name
+                )
+                RESPONSE_DATA = urllib.request.urlopen(
+                    urllib.request.Request(
+                        ffURL,
+                        headers={
+                            "User-Agent": "Mozilla/5.0 (Linux; Android 7.1.2; en-la) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 YJApp-ANDROID jp.co.yahoo.android.yjtop/13.91.1",
+                            "Connection": "keep-alive",
+                            "Accept-Encoding": "identity",
+                            "HOSTS": "github.com",
+                        },
+                    )
+                ).read()
+            with zipfile.ZipFile(io.BytesIO(RESPONSE_DATA), "r") as Fzip:
+                Fzip.extractall(gitPATH + "/.")
+            vName = gitFileName + "-" + master_name
             if os.path.exists(vName):
                 os.rename(vName, gitFileName)
-            print('Done')
+            print("Done")
 
     def listdir(self, arg, pwd):
-        hOME = os.getenv('HOME')
-        if arg == 'long':
+        hOME = os.getenv("HOME")
+        if arg == "long":
             listdirs = sorted(os.listdir())
             len_dir_lists = len(listdirs)
             for lis in range(len_dir_lists):
                 if os.path.islink(os.path.join(pwd, listdirs[lis])):
                     try:
-                        print('[%s] %s -> %s' % (time.strftime("%Y-%m-%d", time.localtime(os.stat(os.path.join(pwd, listdirs[lis])).st_mtime)),self.detect_file(listdirs[lis]), os.path.realpath(os.path.join(pwd, listdirs[lis])).replace(hOME, '~')))
+                        print(
+                            "[%s] %s -> %s"
+                            % (
+                                time.strftime(
+                                    "%Y-%m-%d",
+                                    time.localtime(
+                                        os.stat(
+                                            os.path.join(pwd, listdirs[lis])
+                                        ).st_mtime
+                                    ),
+                                ),
+                                self.detect_file(listdirs[lis]),
+                                os.path.realpath(
+                                    os.path.join(pwd, listdirs[lis])
+                                ).replace(hOME, "~"),
+                            )
+                        )
                     except:
                         continue
                     console.set_color()
                 else:
                     try:
-                        print('[%s] %s' % (time.strftime("%Y-%m-%d", time.localtime(os.stat(os.path.join(pwd, listdirs[lis])).st_mtime)),self.detect_file(listdirs[lis])))
+                        print(
+                            "[%s] %s"
+                            % (
+                                time.strftime(
+                                    "%Y-%m-%d",
+                                    time.localtime(
+                                        os.stat(
+                                            os.path.join(pwd, listdirs[lis])
+                                        ).st_mtime
+                                    ),
+                                ),
+                                self.detect_file(listdirs[lis]),
+                            )
+                        )
                     except:
                         continue
                     console.set_color()
@@ -432,29 +547,51 @@ class pipTerminal(object):
                 print(E)
 
     def list_stash_bin(self):
-        sh_bin_list = sorted(os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'stash_extensions', 'bin')))
+        sh_bin_list = sorted(
+            os.listdir(
+                os.path.join(os.getenv("HOME"), "Documents", "stash_extensions", "bin")
+            )
+        )
         for DIR_PATH in range(len(sh_bin_list)):
             try:
-                if os.path.isdir(sorted(os.path.join(os.getenv('HOME'), 'Documents', 'stash_extensions', 'bin', sh_bin_list[DIR_PATH]))):
+                if os.path.isdir(
+                    sorted(
+                        os.path.join(
+                            os.getenv("HOME"),
+                            "Documents",
+                            "stash_extensions",
+                            "bin",
+                            sh_bin_list[DIR_PATH],
+                        )
+                    )
+                ):
                     del sh_bin_list[DIR_PATH]
             except:
                 pass
             try:
-                if sh_bin_list[DIR_PATH].split('.')[-1].lower() == 'py':
-                    sh_bin_list[DIR_PATH] = sh_bin_list[DIR_PATH].replace('.py','')
+                if sh_bin_list[DIR_PATH].split(".")[-1].lower() == "py":
+                    sh_bin_list[DIR_PATH] = sh_bin_list[DIR_PATH].replace(".py", "")
             except:
                 pass
-        return ', '.join(sh_bin_list)
+        return ", ".join(sh_bin_list)
 
     def list_other_cmd(self):
-        list = sorted(os.listdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')))
+        list = sorted(
+            os.listdir(
+                os.path.join(os.getenv("HOME"), "Documents", "site-packages", "_bin")
+            )
+        )
         for d in range(len(list)):
             try:
-                if os.path.isdir(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin', list[d])):
+                if os.path.isdir(
+                    os.path.join(
+                        os.getenv("HOME"), "Documents", "site-packages", "_bin", list[d]
+                    )
+                ):
                     del list[d]
             except:
                 pass
-        return ', '.join(list)
+        return ", ".join(list)
 
     def ping(self, host):
         _p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -465,31 +602,49 @@ class pipTerminal(object):
         except socket.timeout:
             pass
         except Exception as ERR:
-            if '22' in str(ERR) or 'argument' in str(ERR):
+            if "22" in str(ERR) or "argument" in str(ERR):
                 pass
-            if 'refused' not in str(ERR):
-                raise(ERR)
+            if "refused" not in str(ERR):
+                raise (ERR)
         e_time = time.time()
         _p.close()
-        ping_result = 'PING to {HOST} Time: {TIME}ms'.format(HOST=host, TIME=round(((e_time - f_time) * 1000), 2))
+        ping_result = "PING to {HOST} Time: {TIME}ms".format(
+            HOST=host, TIME=round(((e_time - f_time) * 1000), 2)
+        )
         return ping_result
 
     def readfile(self, Name):
-        if Name.endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.rgb', '.pgm', '.pbm', '.ppm', '.xbm')):
+        if Name.endswith(
+            (
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".gif",
+                ".bmp",
+                ".tiff",
+                ".rgb",
+                ".pgm",
+                ".pbm",
+                ".ppm",
+                ".xbm",
+            )
+        ):
             rfile = ImageLoad().open(Name)
             self.printed_STDOUT[0] = rfile
-            return '3'
+            return "3"
         else:
-            rfile = open(Name, 'rb').read()
+            rfile = open(Name, "rb").read()
             self.printed_STDOUT[0] = rfile
-            return '0'
+            return "0"
 
     def run_stash_bin(self, cmdName, Sargs):
         try:
-            stash_bin_path = os.path.join(os.getenv('HOME'), 'Documents', 'stash_extensions', 'bin')
-            Rcommand_name = cmdName + '.py'
+            stash_bin_path = os.path.join(
+                os.getenv("HOME"), "Documents", "stash_extensions", "bin"
+            )
+            Rcommand_name = cmdName + ".py"
             RfileName = os.path.join(stash_bin_path, Rcommand_name)
-            RFile_read = open(RfileName, 'r', encoding='utf-8').read()
+            RFile_read = open(RfileName, "r", encoding="utf-8").read()
             sys.argv[1:] = Sargs
             try:
                 exec(RFile_read)
@@ -498,13 +653,15 @@ class pipTerminal(object):
         except FileNotFoundError:
             pass
         except Exception as E:
-            print('ERROR: {}'.format(E))
+            print("ERROR: {}".format(E))
 
     def run_other_cmd(self, cmd_name, args):
         try:
-            cmd_bin = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')
+            cmd_bin = os.path.join(
+                os.getenv("HOME"), "Documents", "site-packages", "_bin"
+            )
             fileNa = os.path.join(cmd_bin, cmd_name)
-            _read = open(fileNa, 'r', encoding='utf-8').read()
+            _read = open(fileNa, "r", encoding="utf-8").read()
             sys.argv[1:] = args
             try:
                 exec(_read)
@@ -513,27 +670,31 @@ class pipTerminal(object):
         except FileNotFoundError:
             self.run_stash_bin(cmd_name, args)
         except Exception as E:
-            print('ERROR: {ERR}'.format(ERR=E))
+            print("ERROR: {ERR}".format(ERR=E))
 
     def Symbolic_Link(self, Src, Dest):
         try:
             if os.path.isfile(Dest):
-                print('{DEs} Already Exists'.format(DEs=Dest))
+                print("{DEs} Already Exists".format(DEs=Dest))
                 pass
             if os.path.islink(Dest):
-                print('{DEst} Already Linked'.format(DEs=Dest))
+                print("{DEst} Already Linked".format(DEs=Dest))
                 pass
         except:
             pass
         try:
             os.symlink(Src, Dest)
         except Exception as E:
-            print('Error: {ERR}.'.format(ERR=E))
+            print("Error: {ERR}.".format(ERR=E))
 
-    def wget(self, URL, filename=''):
-        user_agent = {'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.0; en-la; Nexus Build/JPG991) AppleWebKit/511.2 (KHTML, like Gecko) Version/5.0 Mobile/11S444 YJApp-ANDROID jp.co.yahoo.android.yjtop/4.01.1.5'}
-        if filename == '':
-            output_fileName = urllib.parse.unquote(urllib.parse.unquote(URL.split('/')[-1]))
+    def wget(self, URL, filename=""):
+        user_agent = {
+            "User-Agent": "Mozilla/5.0 (Linux; U; Android 8.0; en-la; Nexus Build/JPG991) AppleWebKit/511.2 (KHTML, like Gecko) Version/5.0 Mobile/11S444 YJApp-ANDROID jp.co.yahoo.android.yjtop/4.01.1.5"
+        }
+        if filename == "":
+            output_fileName = urllib.parse.unquote(
+                urllib.parse.unquote(URL.split("/")[-1])
+            )
         else:
             output_fileName = filename
         try:
@@ -545,7 +706,7 @@ class pipTerminal(object):
                 fs = 0
             print("Save as: {File} ".format(File=output_fileName))
             print("({Size} bytes)".format(Size=fs if fs else "???"))
-            with open(output_fileName, 'wb') as f:
+            with open(output_fileName, "wb") as f:
                 fs_dl = 0.0
                 blsz = 8192
                 while True:
@@ -556,46 +717,50 @@ class pipTerminal(object):
                     f.write(_b)
         except:
             try:
-                print('downloading.....')
+                print("downloading.....")
                 uu = requests.get(URL, headers=user_agent)
                 try:
-                    File_size = int(uu.headers['Content-Length'])
-                except  (IndexError, ValueError, TypeError):
+                    File_size = int(uu.headers["Content-Length"])
+                except (IndexError, ValueError, TypeError):
                     File_size = 0
-                if uu.headers['Content-Type'] == 'application/json':
-                    with open(output_fileName, 'w') as F:
+                if uu.headers["Content-Type"] == "application/json":
+                    with open(output_fileName, "w") as F:
                         F.write(uu.json())
-                    print('save as {}'.format(output_fileName))
+                    print("save as {}".format(output_fileName))
                     print("({} bytes)".format(File_size if File_size else "???"))
                 else:
-                    with open(output_fileName, 'wb') as Fb:
+                    with open(output_fileName, "wb") as Fb:
                         Fb.write(uu.content)
-                    print('Save as: {}'.format(output_fileName))
+                    print("Save as: {}".format(output_fileName))
                     print("({} bytes)".format(File_size if File_size else "???"))
             except Exception:
-                print('Error. URL: {}'.format(URL))
+                print("Error. URL: {}".format(URL))
 
     def help_tar(self):
-        print('tar [-h] [-j] [-z] [-x] [file [files ...]]')
-        print('Support Archive Type: tar.gz or tar.')
-        print('This command is extract only.')
+        print("tar [-h] [-j] [-z] [-x] [file [files ...]]")
+        print("Support Archive Type: tar.gz or tar.")
+        print("This command is extract only.")
 
     def TarArgument(self, ARGS):
         try:
-            if 'x' in ARGS[1][1:]:
-                if 'z' in ARGS[1][1:]:
+            if "x" in ARGS[1][1:]:
+                if "z" in ARGS[1][1:]:
                     try:
-                        tExtract_ALL(os.path.join(os.getcwd(), ARGS[2][0:]), ARGS[1][1:])
+                        tExtract_ALL(
+                            os.path.join(os.getcwd(), ARGS[2][0:]), ARGS[1][1:]
+                        )
                     except:
                         pass
-                elif 'j' in ARGS[1][1:]:
+                elif "j" in ARGS[1][1:]:
                     try:
-                        tExtract_ALL(os.path.join(os.getcwd(), ARGS[2][0:]), ARGS[1][1:])
+                        tExtract_ALL(
+                            os.path.join(os.getcwd(), ARGS[2][0:]), ARGS[1][1:]
+                        )
                     except:
                         pass
-            elif ARGS[1][1:] == '--help':
+            elif ARGS[1][1:] == "--help":
                 self.help_tar()
-            elif 'h' in ARGS[1][1:]:
+            elif "h" in ARGS[1][1:]:
                 self.help_tar()
             else:
                 self.help_tar()
@@ -612,75 +777,77 @@ class pipTerminal(object):
                 if tf.name == pt or tf.name.startswith(pt):
                     yield tf
 
-    def tExtract_ALL(self, FName, tArgs, mems=None, Dir='./'):
-        if 'z' in tArgs[0]:
-            print('Reading gzip file')
-            tar = tarfile.open(FName, 'r:gz')
-        elif 'j' in tArgs[0]:
-            print('Reading bz2 file')
-            tar = tarfile.open(FName, 'r:bz2')
+    def tExtract_ALL(self, FName, tArgs, mems=None, Dir="./"):
+        if "z" in tArgs[0]:
+            print("Reading gzip file")
+            tar = tarfile.open(FName, "r:gz")
+        elif "j" in tArgs[0]:
+            print("Reading bz2 file")
+            tar = tarfile.open(FName, "r:bz2")
         if mems:
             tar.extractall(path=Dir, members=self.ExtractMems(tar, mems))
         else:
             tar.extractall(path=Dir)
         tar.close()
-        print('Archive Extracted')
+        print("Archive Extracted")
 
     def ZIPExtractor(self, zFileName):
         if not os.path.isfile(zFileName):
-            print('{}: No such File...'.format(zFileName))
+            print("{}: No such File...".format(zFileName))
         else:
             try:
-                pk_Check = open(zFileName, 'rb').read(2)
+                pk_Check = open(zFileName, "rb").read(2)
             except:
-                pk_Check = ''
-            if pk_Check != b'PK':
-                print('{}: Dose not appear to be a ZIPFile.'.format(zFileName))
-            if os.path.basename(zFileName).lower().endswith('.zip'):
+                pk_Check = ""
+            if pk_Check != b"PK":
+                print("{}: Dose not appear to be a ZIPFile.".format(zFileName))
+            if os.path.basename(zFileName).lower().endswith(".zip"):
                 ALPath = os.path.splitext(os.path.basename(zFileName))[0]
             else:
-                ALPath = os.path.basename(zFileName) + '_UnZIPPED'
+                ALPath = os.path.basename(zFileName) + "_UnZIPPED"
             ALPath = os.path.join(os.path.dirname(zFileName), ALPath)
             if (os.path.exists(ALPath)) and not (os.path.isdir(ALPath)):
-                print('{}: Destination is not a Directory.'.format(ALPath))
+                print("{}: Destination is not a Directory.".format(ALPath))
             elif not os.path.exists(ALPath):
                 os.makedirs(ALPath, exist_ok=True)
             try:
-                ZIPfp = open(zFileName, 'rb')
+                ZIPfp = open(zFileName, "rb")
                 ZipF = zipfile.ZipFile(ZIPfp)
-                DIR_NAME = [os.path.join(os.path.dirname(_z), '') for _z in ZipF.namelist()]
-                COMMON_DIR = os.path.commonprefix(DIR_NAME or ['/'])
-                if not COMMON_DIR.endswith('/'):
-                    COMMON_DIR = os.path.join(os.path.dirname(COMMON_DIR), '')
+                DIR_NAME = [
+                    os.path.join(os.path.dirname(_z), "") for _z in ZipF.namelist()
+                ]
+                COMMON_DIR = os.path.commonprefix(DIR_NAME or ["/"])
+                if not COMMON_DIR.endswith("/"):
+                    COMMON_DIR = os.path.join(os.path.dirname(COMMON_DIR), "")
                 for zNa in ZipF.namelist():
                     zData = ZipF.read(zNa)
                     Fn = zNa
                     if COMMON_DIR:
                         if Fn.startswith(COMMON_DIR):
                             Fn = Fn.split(COMMON_DIR, 1)[-1]
-                        elif Fn.startswith('/' + COMMON_DIR):
-                            Fn = Fn.split('/' + COMMON_DIR, 1)[-1]
-                    Fn = Fn.lstrip('/')
+                        elif Fn.startswith("/" + COMMON_DIR):
+                            Fn = Fn.split("/" + COMMON_DIR, 1)[-1]
+                    Fn = Fn.lstrip("/")
                     Fn = os.path.join(ALPath, Fn)
                     DIRf = os.path.dirname(Fn)
                     if not os.path.exists(DIRf):
                         os.makedirs(DIRf, exist_ok=True)
-                    if Fn.endswith('/'):
+                    if Fn.endswith("/"):
                         if not os.path.exists(Fn):
                             os.makedirs(Fn, exist_ok=True)
                     else:
-                        Fp = open(Fn, 'wb')
+                        Fp = open(Fn, "wb")
                         try:
                             Fp.write(zData)
                         finally:
                             Fp.close()
                     print(Fn)
             except:
-                print('{}: ZIP File is Corrupt'.format(zFileName))
+                print("{}: ZIP File is Corrupt".format(zFileName))
 
     def ZipArchiveCreate(self, ziPFilename, IPath):
         REL_ROOT = os.path.abspath(os.path.dirname(ziPFilename))
-        with zipfile.ZipFile(ziPFilename, 'w', zipfile.ZIP_DEFLATED) as OutPutsZip:
+        with zipfile.ZipFile(ziPFilename, "w", zipfile.ZIP_DEFLATED) as OutPutsZip:
             if os.path.isfile(IPath):
                 print(IPath)
                 ARCHiveName = os.path.relpath(IPath, REL_ROOT)
@@ -699,13 +866,13 @@ class pipTerminal(object):
 
     def delelemnts(self, element):
         while True:
-             try:
-                 if '' in element:
-                      element.remove('')
-                 else:
-                      break
-             except:
-                 break
+            try:
+                if "" in element:
+                    element.remove("")
+                else:
+                    break
+            except:
+                break
         return element
 
     def Argument_Paser(self, Args):
@@ -716,78 +883,116 @@ class pipTerminal(object):
             except IndexError:
                 pass
             try:
-                if Args[0] == 'help':
+                if Args[0] == "help":
                     try:
-                        print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + self.list_other_cmd() + '\n\n[Stash Extensions Commands]:\n' + self.list_stash_bin())
+                        print(
+                            "[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n"
+                            + self.list_other_cmd()
+                            + "\n\n[Stash Extensions Commands]:\n"
+                            + self.list_stash_bin()
+                        )
                     except:
                         try:
-                            print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n' + self.list_other_cmd())
+                            print(
+                                "[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n\n[Third Party commands]:\n"
+                                + self.list_other_cmd()
+                            )
                         except:
-                            print('[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n')
-                elif Args[0] == 'cat':
+                            print(
+                                "[Default commands]:\nhelp, 2to3, cat, cd, echo, env, git(clone only), la, ls, ln, mkdir, open, ping, rm, tar, uznip, wget, zip, python, python3, qrcode,  pbcopy, pbpaste, delclip, showip, exit\n"
+                            )
+                elif Args[0] == "cat":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             ViewFile = self.readfile(Args[1])
-                            if ViewFile[0] == '0':
+                            if ViewFile[0] == "0":
                                 try:
                                     print(self.printed_STDOUT[0].decode())
                                 except:
-                                    print('Error: Read Text File?')
-                            elif ViewFile[0] == '3':
-                               print('{}'.format(console.show_image(Args[1])).split('None')[0])
+                                    print("Error: Read Text File?")
+                            elif ViewFile[0] == "3":
+                                print(
+                                    "{}".format(console.show_image(Args[1])).split(
+                                        "None"
+                                    )[0]
+                                )
                         else:
                             pass
                     except:
                         pass
-                elif Args[0] == '2to3':
-                    try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            self._2to3(Args[1:])
-                        else:
-                            pass
-                    except:
-                        pass
-                elif Args[0] == 'pbcopy':
+                elif Args[0] == "pbcopy":
                     self.pbcopy(Args[1])
-                elif Args[0] == 'pbpaste':
+                elif Args[0] == "pbpaste":
                     self.pbpaste()
-                elif Args[0] == 'delclip':
-                    self.pbcopy('')
-                elif Args[0] == 'showip':
+                elif Args[0] == "delclip":
+                    self.pbcopy("")
+                elif Args[0] == "showip":
                     try:
                         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-                            user_agent = {'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.0; en-la; Nexus Build/JPG991) AppleWebKit/511.2 (KHTML, like Gecko) Version/5.0 Mobile/11S444 YJApp-ANDROID jp.co.yahoo.android.yjtop/4.01.1.5'}
-                            s.connect(('8.8.8.8', 80))
-                            print('Local iP: {}\nGlobal iP: {}'.format(s.getsockname()[0], concurrent.futures.ThreadPoolExecutor().submit(urllib.request.urlopen, urllib.request.Request('http://checkip.amazonaws.com', headers=user_agent)).result().read().decode(errors='ignore').split('\n')[0]))
+                            user_agent = {
+                                "User-Agent": "Mozilla/5.0 (Linux; U; Android 8.0; en-la; Nexus Build/JPG991) AppleWebKit/511.2 (KHTML, like Gecko) Version/5.0 Mobile/11S444 YJApp-ANDROID jp.co.yahoo.android.yjtop/4.01.1.5"
+                            }
+                            s.connect(("8.8.8.8", 80))
+                            print(
+                                "Local iP: {}\nGlobal iP: {}".format(
+                                    s.getsockname()[0],
+                                    concurrent.futures.ThreadPoolExecutor()
+                                    .submit(
+                                        urllib.request.urlopen,
+                                        urllib.request.Request(
+                                            "http://checkip.amazonaws.com",
+                                            headers=user_agent,
+                                        ),
+                                    )
+                                    .result()
+                                    .read()
+                                    .decode(errors="ignore")
+                                    .split("\n")[0],
+                                )
+                            )
                     except:
                         pass
-                elif Args[0] == 'cd':
+                elif Args[0] == "cd":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            if '$' in Args[1] and '/' in Args[1]:
-                                Arg1 = Args[1].replace('$', os.getenv(Args[1].split('$')[1].split('/')[0]))
-                                Args[1] = Args.replace(Args[1].split('$')[1].split('/')[0], '')
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
+                            if "$" in Args[1] and "/" in Args[1]:
+                                Arg1 = Args[1].replace(
+                                    "$", os.getenv(Args[1].split("$")[1].split("/")[0])
+                                )
+                                Args[1] = Args.replace(
+                                    Args[1].split("$")[1].split("/")[0], ""
+                                )
                             try:
-                                if Args[1][0] == '$':
+                                if Args[1][0] == "$":
                                     try:
                                         os.chdir(os.getenv(Args[1][1:]))
                                     except Exception as E:
-                                        print('ERROR:{}'.format(E))
+                                        print("ERROR:{}".format(E))
                                 else:
                                     try:
                                         os.chdir(Args[1])
                                     except Exception as E:
-                                        print('ERROR:{}'.format(E))
+                                        print("ERROR:{}".format(E))
                             except IndexError:
                                 try:
                                     os.chdir(self.HOME_DIC)
                                 except Exception as E:
-                                    print('ERROR:{}'.format(E))
-                                if Args[1] == '' or Args[1] == ' ':
+                                    print("ERROR:{}".format(E))
+                                if Args[1] == "" or Args[1] == " ":
                                     try:
                                         os.chdir(self.HOME_DIC)
                                     except Exception as E:
-                                        print('ERROR:{}'.format(E))
+                                        print("ERROR:{}".format(E))
                             except:
                                 pass
                         else:
@@ -796,65 +1001,90 @@ class pipTerminal(object):
                         try:
                             os.chdir(self.HOME_DIC)
                         except Exception as E:
-                            print('ERROR:{}'.format(E))
-                elif Args[0] == 'cp':
+                            print("ERROR:{}".format(E))
+                elif Args[0] == "cp":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            if not '/' in Args[2]:
-                                self.copyFiles(os.path.join(os.getcwd(),Args[1]),os.path.join(os.getcwd(), Args[2]))
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
+                            if not "/" in Args[2]:
+                                self.copyFiles(
+                                    os.path.join(os.getcwd(), Args[1]),
+                                    os.path.join(os.getcwd(), Args[2]),
+                                )
                             else:
-                                self.copyFiles(os.path.join(os.getcwd(),Args[1]), Args[2])
+                                self.copyFiles(
+                                    os.path.join(os.getcwd(), Args[1]), Args[2]
+                                )
                         else:
                             pass
                     except:
                         pass
-                elif Args[0] == 'echo':
+                elif Args[0] == "echo":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             try:
-                                if Args[1][0] == '$':
+                                if Args[1][0] == "$":
                                     env_data = os.getenv(Args[1][1:])
                                     if not env_data is None:
                                         print(env_data)
                                 else:
                                     if Args[1][0] == '"' and Args[1][-1] == '"':
-                                        print(' '.join(re.findall('"(.+)"', Args[1])))
+                                        print(" ".join(re.findall('"(.+)"', Args[1])))
                                     else:
                                         print(Args[1])
                             except:
                                 print(Args[1])
-                            
+
                         else:
                             pass
                     except IndexError:
-                        print('')
+                        print("")
                     except:
                         pass
-                elif Args[0] == 'env':
+                elif Args[0] == "env":
                     try:
                         for im, vl in os.environ.items():
                             console.set_color(255, 0, 0)
-                            print('{}'.format(im), end=': ')
+                            print("{}".format(im), end=": ")
                             console.set_color()
                             print(vl)
                     except:
                         pass
-                elif Args[0] == 'git':
+                elif Args[0] == "git":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            if Args[1] == 'clone':
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
+                            if Args[1] == "clone":
                                 self.git_clone(Args[2:])
                             else:
-                                print('git is clone only')
+                                print("git is clone only")
                         else:
                             pass
                     except:
                         pass
-                elif Args[0] == 'la' or Args[0] == 'ls':
+                elif Args[0] == "la" or Args[0] == "ls":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            if Args[1] == '-l':
-                                self.listdir('long', os.getcwd())
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
+                            if Args[1] == "-l":
+                                self.listdir("long", os.getcwd())
                             else:
                                 self.listdir(None, None)
                         else:
@@ -863,21 +1093,31 @@ class pipTerminal(object):
                         self.listdir(None, None)
                     except:
                         pass
-                elif Args[0] == 'ln':
+                elif Args[0] == "ln":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            if Args[1] == '-s':
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
+                            if Args[1] == "-s":
                                 try:
-                                    if not '/' in Args[2] and not '/' in Args[3]:
-                                        self.Symbolic_Link(os.path.join(os.getcwd(), Args[2]), os.path.join(os.getcwd(), Args[3]))
+                                    if not "/" in Args[2] and not "/" in Args[3]:
+                                        self.Symbolic_Link(
+                                            os.path.join(os.getcwd(), Args[2]),
+                                            os.path.join(os.getcwd(), Args[3]),
+                                        )
                                     else:
                                         self.Symbolic_Link(Args[2], Args[3])
                                 except:
                                     pass
                             else:
                                 try:
-                                    if not '/' in Args[1]:
-                                        self.Symbolic_Link(os.path.join(os.getcwd(), Args[1]), Args[2])
+                                    if not "/" in Args[1]:
+                                        self.Symbolic_Link(
+                                            os.path.join(os.getcwd(), Args[1]), Args[2]
+                                        )
                                     else:
                                         self.Symbolic_Link(Args[1], Args[2])
                                 except:
@@ -886,36 +1126,23 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'pip':
+                elif Args[0] == "pip":
                     try:
-                        if not os.path.exists(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin', 'pip')):
-                            with open(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin', 'pip'), 'w') as pipF:
-                                pipF.write("# -*- coding: utf-8 -*-\nimport re\nimport sys\nfrom pip._internal.cli.main import main\nif __name__ == '__main__':\n    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])\n    sys.exit(main())")
-                        cmd_bin_path = os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin')
-                        fileNa = os.path.join(cmd_bin_path, 'pip')
-                        _read = open(fileNa, 'r', encoding='utf-8').read()
                         sys.argv[1:] = Args[1:]
-                        try:
-                            exec(_read)
-                        except:
-                            pass
-                        if os.path.exists(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib', 'python3.1', 'site-packages')):
-                            shutil.copytree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib', 'python3.1', 'site-packages'), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages'), dirs_exist_ok=True)
-                            shutil.rmtree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'lib'))
-                            try:
-                                os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), exist_ok=True)
-                                os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
-                                shutil.copytree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', '_bin'), dirs_exist_ok=True)
-                                shutil.rmtree(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'))
-                                os.makedirs(os.path.join(os.getenv('HOME'), 'Documents', 'site-packages', 'bin'), exist_ok=True)
-                            except:
-                                pass
+                        exec(PIP_EXEC_CONTENT)
+                    except Exception as exc:
+                        logging.exception(exc)
                     except:
                         pass
-                elif Args[0] == 'mkdir':
+                elif Args[0] == "mkdir":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            if Args[1] == '-p':
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
+                            if Args[1] == "-p":
                                 os.makedirs(Args[2], exist_ok=True)
                             else:
                                 os.makedirs(Args[1], exist_ok=True)
@@ -923,18 +1150,30 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'qrcode':
+                elif Args[0] == "qrcode":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             with QRCodeView(Args[1]) as QR:
-                                print('{}'.format(console.show_image(QR)).split('None')[0])
+                                print(
+                                    "{}".format(console.show_image(QR)).split("None")[0]
+                                )
                         else:
                             pass
                     except:
                         pass
-                elif Args[0] == 'mv':
+                elif Args[0] == "mv":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             try:
                                 shutil.move(Args[1], Args[2])
                             except IndexError:
@@ -945,9 +1184,14 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'open':
+                elif Args[0] == "open":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             try:
                                 console.quicklook(Args[1])
                             except Exception as E:
@@ -956,9 +1200,14 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'ping':
+                elif Args[0] == "ping":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             try:
                                 for _P in range(3):
                                     print(self.ping(Args[1]))
@@ -969,22 +1218,32 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'pwd':
+                elif Args[0] == "pwd":
                     try:
                         path = os.getcwd()
                     except Exception as E:
                         path = E
                     print(path)
-                elif Args[0] == 'rm':
+                elif Args[0] == "rm":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             try:
-                                if '$' in Args[1] and '/' in Args[1]:
-                                    Arg1 = Args[1].replace('$', os.getenv(Args[1].split('$')[1].split('/')[0]))
-                                    Args[1] = Args.replace(Args[1].split('$')[1].split('/')[0], '')
-                                if Args[1][0:] == './*':
+                                if "$" in Args[1] and "/" in Args[1]:
+                                    Arg1 = Args[1].replace(
+                                        "$",
+                                        os.getenv(Args[1].split("$")[1].split("/")[0]),
+                                    )
+                                    Args[1] = Args.replace(
+                                        Args[1].split("$")[1].split("/")[0], ""
+                                    )
+                                if Args[1][0:] == "./*":
                                     try:
-                                        for _rm in range(len(os.listdir('./'))):
+                                        for _rm in range(len(os.listdir("./"))):
                                             self.delete_Files(os.listdir()[_rm])
                                     except:
                                         pass
@@ -1002,30 +1261,45 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'tar':
+                elif Args[0] == "tar":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             self.TarArgument(Args)
                         else:
                             self.help_tar()
                     except:
                         pass
-                elif Args[0] == 'unzip':
+                elif Args[0] == "unzip":
                     try:
-                        if not Args[1] == '-h':
+                        if not Args[1] == "-h":
                             self.ZIPExtractor(Args[1])
                         else:
                             pass
                     except:
                         pass
-                elif Args[0] == 'python' or Args[0] == 'python3' or Args[0] == 'py' or Args[0] == 'py3':
+                elif (
+                    Args[0] == "python"
+                    or Args[0] == "python3"
+                    or Args[0] == "py"
+                    or Args[0] == "py3"
+                ):
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
-                            if not '/' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
+                            if not "/" in Args[1]:
                                 file_path = os.path.join(os.getcwd(), Args[1])
                             else:
                                 file_path = Args[1]
-                            py_file = open(file_path, 'r', encoding='utf-8').read()
+                            py_file = open(file_path, "r", encoding="utf-8").read()
                             try:
                                 exec(py_file, globals())
                             except:
@@ -1039,11 +1313,16 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'wget':
+                elif Args[0] == "wget":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             try:
-                                if Args[2] == '-o' or Args[2] == '--output':
+                                if Args[2] == "-o" or Args[2] == "--output":
                                     self.wget(Args[1], filename=Args[3])
                             except IndexError:
                                 self.wget(Args[1])
@@ -1051,9 +1330,14 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'zip':
+                elif Args[0] == "zip":
                     try:
-                        if not Args[1] == '-h' or not Args[1] == '--help' or not '-h' in Args[1] or not '--help' in Args[1]:
+                        if (
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
+                        ):
                             try:
                                 self.ZipArchiveCreate(Args[1], Args[2])
                             except:
@@ -1062,12 +1346,12 @@ class pipTerminal(object):
                             pass
                     except:
                         pass
-                elif Args[0] == 'exit':
-                    print('Exiting.......')
+                elif Args[0] == "exit":
+                    print("Exiting.......")
                     self.is_Exits = False
-                elif Args[0] == 'clear' or Args[0] == 'cls':
+                elif Args[0] == "clear" or Args[0] == "cls":
                     console.clear()
-                elif Args[0] == '' or Args[0] == ' ':
+                elif Args[0] == "" or Args[0] == " ":
                     pass
                 else:
                     self.run_other_cmd(Args[0], Args[1:])
@@ -1083,47 +1367,66 @@ class pipTerminal(object):
         while self.is_Exits:
             try:
                 console.set_color(0, 102, 0)
-                self.Command_DIRNAME[2] = ''
-                print(self.Command_DIRNAME[0], end='\r', flush=True)
+                self.Command_DIRNAME[2] = ""
+                print(self.Command_DIRNAME[0], end="\r", flush=True)
                 console.set_color()
-                print(':', end='', flush=True)
+                print(":", end="", flush=True)
                 console.set_color(0, 10, 255)
                 try:
-                    self.Command_DIRNAME[2] = os.getcwd().replace(os.getenv('HOME'), '~')
+                    self.Command_DIRNAME[2] = os.getcwd().replace(
+                        os.getenv("HOME"), "~"
+                    )
                 except Exception as Err:
-                   print(Err)
-                   try:
-                       self.Argument_Paser(['cd', '../'])
-                   except:
-                      print('Occurred Some Errors,\nExiting.........')
-                      sys.exit(0)
-                print(self.Command_DIRNAME[2], end='', flush=True)
+                    print(Err)
+                    try:
+                        self.Argument_Paser(["cd", "../"])
+                    except:
+                        print("Occurred Some Errors,\nExiting.........")
+                        sys.exit(0)
+                print(self.Command_DIRNAME[2], end="", flush=True)
                 console.set_color()
                 sys.stdout = self.BackupSTDOUT
-                INPUT_Argument = input('$ ')
-                if '|' in INPUT_Argument:
+                INPUT_Argument = input("$ ")
+                if "|" in INPUT_Argument:
                     with io.StringIO() as St:
                         sys.stdout = St
-                        self.Argument_Paser(INPUT_Argument.split('|')[0].split(' '))
+                        self.Argument_Paser(INPUT_Argument.split("|")[0].split(" "))
                         if not self.printed_STDOUT[0] == None:
                             printed = self.printed_STDOUT[0]
                             try:
-                                INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                                INPUT_Arguments = [
+                                    INPUT_Argument.replace(" ", "").split("|")[1],
+                                    printed,
+                                ]
                             except:
-                                INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                                INPUT_Arguments = [
+                                    INPUT_Argument.replace(" ", "").split("|")[1],
+                                    printed,
+                                ]
                         else:
                             printed = St.getvalue()
-                            INPUT_Arguments = [INPUT_Argument.replace(' ','').split('|')[1], printed]
+                            INPUT_Arguments = [
+                                INPUT_Argument.replace(" ", "").split("|")[1],
+                                printed,
+                            ]
                         sys.stdout = self.BackupSTDOUT
-                        concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Arguments)
-                elif '>>' in INPUT_Argument:
+                        concurrent.futures.ThreadPoolExecutor().submit(
+                            self.Argument_Paser, INPUT_Arguments
+                        )
+                elif ">>" in INPUT_Argument:
                     with io.StringIO() as St:
-                        if '&' in INPUT_Argument:
-                            INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
+                        if "&" in INPUT_Argument:
+                            INPUT_Argument = INPUT_Argument.replace(" &", "").replace(
+                                "&", ""
+                            )
                             sys.stdout = St
-                            INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
-                            concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
-                            concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Arguments)
+                            INPUT_Arguments = INPUT_Argument.split(">")[0].split(" ")
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.delelemnts, INPUT_Arguments
+                            ).result()
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.Argument_Paser, INPUT_Arguments
+                            )
                             if not self.printed_STDOUT[0] == None:
                                 ArgV = self.printed_STDOUT[0]
                             else:
@@ -1131,34 +1434,61 @@ class pipTerminal(object):
                             sys.stdout = self.BackupSTDOUT
                         else:
                             sys.stdout = St
-                            INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
-                            concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
+                            INPUT_Arguments = INPUT_Argument.split(">")[0].split(" ")
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.delelemnts, INPUT_Arguments
+                            ).result()
                             self.Argument_Paser(INPUT_Arguments)
                             if not self.printed_STDOUT[0] == None:
                                 ArgV = self.printed_STDOUT[0]
                             else:
                                 ArgV = St.getvalue()
                             sys.stdout = self.BackupSTDOUT
-                        if '$' in INPUT_Argument.replace(' ', '').split('>>')[1]:
-                            FileName = INPUT_Argument.replace(' ', '').split('>>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>>')[1].split('$')[1].split('/')[0], '')
+                        if "$" in INPUT_Argument.replace(" ", "").split(">>")[1]:
+                            FileName = (
+                                INPUT_Argument.replace(" ", "")
+                                .split(">>")[1]
+                                .replace(
+                                    "$",
+                                    os.getenv(
+                                        INPUT_Argument.replace(" ", "")
+                                        .split(">>")[1]
+                                        .split("$")[1]
+                                        .split("/")[0]
+                                    ),
+                                )
+                                .replace(
+                                    INPUT_Argument.replace(" ", "")
+                                    .split(">>")[1]
+                                    .split("$")[1]
+                                    .split("/")[0],
+                                    "",
+                                )
+                            )
                         else:
-                            FileName = INPUT_Argument.replace(' ', '').split('>>')[1]
+                            FileName = INPUT_Argument.replace(" ", "").split(">>")[1]
                         if type(ArgV) == type(bytes()):
-                            with open(FileName, 'ab') as text:
+                            with open(FileName, "ab") as text:
                                 text.write(ArgV)
                         elif type(ArgV) == Image.Image:
-                            ArgV.save(FileName, 'png')
+                            ArgV.save(FileName, "png")
                         else:
-                            with open(FileName, 'ab') as text:
+                            with open(FileName, "ab") as text:
                                 text.write(ArgV.encode())
-                elif '>' in INPUT_Argument:
+                elif ">" in INPUT_Argument:
                     with io.StringIO() as St:
-                        if '&' in INPUT_Argument:
-                            INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
+                        if "&" in INPUT_Argument:
+                            INPUT_Argument = INPUT_Argument.replace(" &", "").replace(
+                                "&", ""
+                            )
                             sys.stdout = St
-                            INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
-                            concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
-                            concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments)
+                            INPUT_Arguments = INPUT_Argument.split(">")[0].split(" ")
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.delelemnts, INPUT_Arguments
+                            ).result()
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.delelemnts, INPUT_Arguments
+                            )
                             if not self.printed_STDOUT[0] == None:
                                 ArgV = self.printed_STDOUT[0]
                             else:
@@ -1166,39 +1496,66 @@ class pipTerminal(object):
                             sys.stdout = self.BackupSTDOUT
                         else:
                             sys.stdout = St
-                            INPUT_Arguments = INPUT_Argument.split('>')[0].split(' ')
-                            concurrent.futures.ThreadPoolExecutor().submit(self.delelemnts, INPUT_Arguments).result()
+                            INPUT_Arguments = INPUT_Argument.split(">")[0].split(" ")
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.delelemnts, INPUT_Arguments
+                            ).result()
                             self.Argument_Paser(INPUT_Arguments)
                             if not self.printed_STDOUT[0] == None:
                                 ArgV = self.printed_STDOUT[0]
                             else:
                                 ArgV = St.getvalue()
                             sys.stdout = self.BackupSTDOUT
-                        if '$' in INPUT_Argument.replace(' ', '').split('>')[1]:
-                            FileName = INPUT_Argument.replace(' ', '').split('>')[1].replace('$', os.getenv(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0])).replace(INPUT_Argument.replace(' ', '').split('>')[1].split('$')[1].split('/')[0], '')
+                        if "$" in INPUT_Argument.replace(" ", "").split(">")[1]:
+                            FileName = (
+                                INPUT_Argument.replace(" ", "")
+                                .split(">")[1]
+                                .replace(
+                                    "$",
+                                    os.getenv(
+                                        INPUT_Argument.replace(" ", "")
+                                        .split(">")[1]
+                                        .split("$")[1]
+                                        .split("/")[0]
+                                    ),
+                                )
+                                .replace(
+                                    INPUT_Argument.replace(" ", "")
+                                    .split(">")[1]
+                                    .split("$")[1]
+                                    .split("/")[0],
+                                    "",
+                                )
+                            )
                         else:
-                            FileName = INPUT_Argument.replace(' ', '').split('>')[1]
+                            FileName = INPUT_Argument.replace(" ", "").split(">")[1]
                         if type(ArgV) == type(bytes()):
-                            with open(FileName, 'wb') as text:
+                            with open(FileName, "wb") as text:
                                 text.write(ArgV)
                         elif type(ArgV) == Image.Image:
-                            ArgV.save(FileName, 'png')
+                            ArgV.save(FileName, "png")
                         else:
                             print(type(ArgV))
-                            with open(FileName, 'wb') as text:
+                            with open(FileName, "wb") as text:
                                 text.write(ArgV.encode())
-                elif '&&' in INPUT_Argument:
-                    if ' && ' in INPUT_Argument:
-                        for argm in INPUT_Argument.split(' && '):
-                            concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, [argm])
-                    elif '&&' in INPUT_Argument:
-                        for argm2 in INPUT_Argument.split('&&'):
-                            concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, [argm2])
-                elif '&' in INPUT_Argument:
-                    INPUT_Argument = INPUT_Argument.replace(' &', '').replace('&', '')
-                    concurrent.futures.ThreadPoolExecutor().submit(self.Argument_Paser, INPUT_Argument.split(' '))
+                elif "&&" in INPUT_Argument:
+                    if " && " in INPUT_Argument:
+                        for argm in INPUT_Argument.split(" && "):
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.Argument_Paser, [argm]
+                            )
+                    elif "&&" in INPUT_Argument:
+                        for argm2 in INPUT_Argument.split("&&"):
+                            concurrent.futures.ThreadPoolExecutor().submit(
+                                self.Argument_Paser, [argm2]
+                            )
+                elif "&" in INPUT_Argument:
+                    INPUT_Argument = INPUT_Argument.replace(" &", "").replace("&", "")
+                    concurrent.futures.ThreadPoolExecutor().submit(
+                        self.Argument_Paser, INPUT_Argument.split(" ")
+                    )
                 else:
-                    self.Argument_Paser(INPUT_Argument.split(' '))
+                    self.Argument_Paser(INPUT_Argument.split(" "))
                 sys.stdout = self.BackupSTDOUT
                 self.printed_STDOUT = [None]
             except KeyboardInterrupt:
@@ -1210,8 +1567,12 @@ class pipTerminal(object):
                 self.printed_STDOUT = [None]
                 break
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
+        if sys.version_info[0] < 3:
+            raise Exception("")
+
         pipTerminal().main()
     except KeyboardInterrupt:
         pass
