@@ -10,7 +10,7 @@ v_maj, v_min, v_patch, *_ = sys.version_info
 assert v_maj >= 3, "Python 3.10 or a more recent version is required."
 assert v_min >= 10, "Python 3.10 or a more recent version is required."
 
-pipTerminal_URL = f"https://raw.githubusercontent.com/CrossDarkrix/Pythonista3_pip_Configration_Tool/main/pipTerminal.py"
+pipTerminal_URL = f"https://raw.githubusercontent.com/o-murphy/Pythonista3_pip_Configration_Tool/main/pipTerminal.py"
 getPipBootstrap_URL = "https://bootstrap.pypa.io/get-pip.py"
 
 
