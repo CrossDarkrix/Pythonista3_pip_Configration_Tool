@@ -6,6 +6,7 @@ Version: 2.1.0
 Author: DarkRix.
 """
 
+import logging
 import code
 import concurrent.futures
 import io
@@ -39,17 +40,10 @@ ssl._create_default_https_context = ssl._create_unverified_context
 def interp_dir_name():
     return "python{x}.{y}".format(x=sys.version_info[0], y=sys.version_info[1])
 
+
 HOME = Path("~").expanduser()
 DOCUMENTS = HOME / "Documents"
 SITE_PACKAGES = DOCUMENTS / "site-packages"
-_BIN_DIR = SITE_PACKAGES / "_bin"
-BIN_DIR = SITE_PACKAGES / "bin"
-
-LIB_DIR = SITE_PACKAGES / "lib"
-_LIB_SUBDIR = "python{x}.{y}".format(x=sys.version_info[0], y=sys.version_info[1])
-LIB_SITE_PACKAGES = LIB_DIR / _LIB_SUBDIR / "site-packages"
-
-PIP_EXEC = _BIN_DIR / "pip"
 PIP_EXEC_CONTENT = """# -*- coding: utf-8 -*-
 import re
 import sys
@@ -57,8 +51,12 @@ from pip._internal.cli.main import main
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    if 'install' in sys.argv:
+        if not '-t' in sys.argv and not '--target' in sys.argv:
+            sys.argv.extend(['--target', '{TARGET}'])
+
     sys.exit(main())
-"""
+""".format(TARGET=SITE_PACKAGES)
 
 
 class QRCodeView(object):
@@ -105,14 +103,6 @@ class pipTerminal(object):
         self.is_Exits = True
         self.HOME_DIC = os.getcwd()
         self.printed_STDOUT = [None]
-        try:
-            os.makedirs(_BIN_DIR, exist_ok=True)
-            os.makedirs(BIN_DIR, exist_ok=True)
-            shutil.copytree(BIN_DIR, _BIN_DIR, dirs_exist_ok=True)
-            shutil.rmtree(BIN_DIR)
-            os.makedirs(BIN_DIR, exist_ok=True)
-        except:
-            pass
 
     def SystemLogo(self):
         console.clear()
@@ -565,15 +555,15 @@ class pipTerminal(object):
         for DIR_PATH in range(len(sh_bin_list)):
             try:
                 if os.path.isdir(
-                        sorted(
-                            os.path.join(
-                                os.getenv("HOME"),
-                                "Documents",
-                                "stash_extensions",
-                                "bin",
-                                sh_bin_list[DIR_PATH],
-                            )
+                    sorted(
+                        os.path.join(
+                            os.getenv("HOME"),
+                            "Documents",
+                            "stash_extensions",
+                            "bin",
+                            sh_bin_list[DIR_PATH],
                         )
+                    )
                 ):
                     del sh_bin_list[DIR_PATH]
             except:
@@ -594,9 +584,9 @@ class pipTerminal(object):
         for d in range(len(list)):
             try:
                 if os.path.isdir(
-                        os.path.join(
-                            os.getenv("HOME"), "Documents", "site-packages", "_bin", list[d]
-                        )
+                    os.path.join(
+                        os.getenv("HOME"), "Documents", "site-packages", "_bin", list[d]
+                    )
                 ):
                     del list[d]
             except:
@@ -625,19 +615,19 @@ class pipTerminal(object):
 
     def readfile(self, Name):
         if Name.endswith(
-                (
-                        ".png",
-                        ".jpg",
-                        ".jpeg",
-                        ".gif",
-                        ".bmp",
-                        ".tiff",
-                        ".rgb",
-                        ".pgm",
-                        ".pbm",
-                        ".ppm",
-                        ".xbm",
-                )
+            (
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".gif",
+                ".bmp",
+                ".tiff",
+                ".rgb",
+                ".pgm",
+                ".pbm",
+                ".ppm",
+                ".xbm",
+            )
         ):
             rfile = ImageLoad().open(Name)
             self.printed_STDOUT[0] = rfile
@@ -914,10 +904,10 @@ class pipTerminal(object):
                 elif Args[0] == "cat":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             ViewFile = self.readfile(Args[1])
                             if ViewFile[0] == "0":
@@ -970,10 +960,10 @@ class pipTerminal(object):
                 elif Args[0] == "cd":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             if "$" in Args[1] and "/" in Args[1]:
                                 Arg1 = Args[1].replace(
@@ -1015,10 +1005,10 @@ class pipTerminal(object):
                 elif Args[0] == "cp":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             if not "/" in Args[2]:
                                 self.copyFiles(
@@ -1036,10 +1026,10 @@ class pipTerminal(object):
                 elif Args[0] == "echo":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             try:
                                 if Args[1][0] == "$":
@@ -1072,10 +1062,10 @@ class pipTerminal(object):
                 elif Args[0] == "git":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             if Args[1] == "clone":
                                 self.git_clone(Args[2:])
@@ -1088,10 +1078,10 @@ class pipTerminal(object):
                 elif Args[0] == "la" or Args[0] == "ls":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             if Args[1] == "-l":
                                 self.listdir("long", os.getcwd())
@@ -1106,10 +1096,10 @@ class pipTerminal(object):
                 elif Args[0] == "ln":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             if Args[1] == "-s":
                                 try:
@@ -1138,39 +1128,19 @@ class pipTerminal(object):
                         pass
                 elif Args[0] == "pip":
                     try:
-                        if not PIP_EXEC.exists():
-                            with open(PIP_EXEC, "w") as pipF:
-                                pipF.write(PIP_EXEC_CONTENT)
-
-                        with open(PIP_EXEC, "r") as pip_exec:
-                            try:
-                                sys.argv[1:] = Args[1:]
-                                exec(pip_exec.read())
-                            except Exception as exc:
-                                import logging
-                                logging.exception(exc)
-
-                        lib_site_pkgs = LIB_SITE_PACKAGES
-                        if lib_site_pkgs.exists():
-                            shutil.copytree(lib_site_pkgs, SITE_PACKAGES, dirs_exist_ok=True)
-                            shutil.rmtree(LIB_DIR)
-                            try:
-                                os.makedirs(_BIN_DIR, exist_ok=True)
-                                os.makedirs(BIN_DIR, exist_ok=True)
-                                shutil.copytree(BIN_DIR, _BIN_DIR, dirs_exist_ok=True)
-                                shutil.rmtree(BIN_DIR)
-                                os.makedirs(BIN_DIR, exist_ok=True)
-                            except:
-                                pass
+                        sys.argv[1:] = Args[1:]
+                        exec(PIP_EXEC_CONTENT)
+                    except Exception as exc:
+                        logging.exception(exc)
                     except:
                         pass
                 elif Args[0] == "mkdir":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             if Args[1] == "-p":
                                 os.makedirs(Args[2], exist_ok=True)
@@ -1183,10 +1153,10 @@ class pipTerminal(object):
                 elif Args[0] == "qrcode":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             with QRCodeView(Args[1]) as QR:
                                 print(
@@ -1199,10 +1169,10 @@ class pipTerminal(object):
                 elif Args[0] == "mv":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             try:
                                 shutil.move(Args[1], Args[2])
@@ -1217,10 +1187,10 @@ class pipTerminal(object):
                 elif Args[0] == "open":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             try:
                                 console.quicklook(Args[1])
@@ -1233,10 +1203,10 @@ class pipTerminal(object):
                 elif Args[0] == "ping":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             try:
                                 for _P in range(3):
@@ -1257,10 +1227,10 @@ class pipTerminal(object):
                 elif Args[0] == "rm":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             try:
                                 if "$" in Args[1] and "/" in Args[1]:
@@ -1294,10 +1264,10 @@ class pipTerminal(object):
                 elif Args[0] == "tar":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             self.TarArgument(Args)
                         else:
@@ -1313,17 +1283,17 @@ class pipTerminal(object):
                     except:
                         pass
                 elif (
-                        Args[0] == "python"
-                        or Args[0] == "python3"
-                        or Args[0] == "py"
-                        or Args[0] == "py3"
+                    Args[0] == "python"
+                    or Args[0] == "python3"
+                    or Args[0] == "py"
+                    or Args[0] == "py3"
                 ):
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             if not "/" in Args[1]:
                                 file_path = os.path.join(os.getcwd(), Args[1])
@@ -1346,10 +1316,10 @@ class pipTerminal(object):
                 elif Args[0] == "wget":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             try:
                                 if Args[2] == "-o" or Args[2] == "--output":
@@ -1363,10 +1333,10 @@ class pipTerminal(object):
                 elif Args[0] == "zip":
                     try:
                         if (
-                                not Args[1] == "-h"
-                                or not Args[1] == "--help"
-                                or not "-h" in Args[1]
-                                or not "--help" in Args[1]
+                            not Args[1] == "-h"
+                            or not Args[1] == "--help"
+                            or not "-h" in Args[1]
+                            or not "--help" in Args[1]
                         ):
                             try:
                                 self.ZipArchiveCreate(Args[1], Args[2])
