@@ -1,4 +1,3 @@
-import os
 import sys
 from pathlib import Path
 import requests
@@ -16,36 +15,75 @@ getPipBootstrap_URL = "https://bootstrap.pypa.io/get-pip.py"
 
 HOME = Path("~").expanduser()
 DOCUMENTS = HOME / "Documents"
-SITE_PACKAGES = DOCUMENTS / "site-packages"
-
 pipTerminal_DST = DOCUMENTS / "pipTerminal.py"
 
-PIP_CONF_DIR = HOME / ".config" / "pip"
-PIP_CONF_PATH = PIP_CONF_DIR / "pip.conf"
-PIP_CONF_FORMAT = """[global]
-prefix={SITE_PACKAGES}/
 
-[user]
-prefix={SITE_PACKAGES}/
+def pin_shortcut():
+    """Creates or updates a shortcut for the 'pipTerminal' script in Pythonista's action menu."""
+    try:
+        from objc_util import ObjCClass, ns
 
-[site]
-prefix={SITE_PACKAGES}/"""
+        NSUserDefaults = ObjCClass("NSUserDefaults")
 
+        def get_actions():
+            defaults = NSUserDefaults.standardUserDefaults()
+            return list(defaults.arrayForKey_("EditorActionInfos") or ())
 
-def setting_pip():
-    pip_config = PIP_CONF_FORMAT.format(SITE_PACKAGES=SITE_PACKAGES)
+        def save_defaults():
+            defaults = NSUserDefaults.standardUserDefaults()
+            NSUserDefaults.setStandardUserDefaults_(defaults)
 
-    os.makedirs(PIP_CONF_DIR, exist_ok=True)
-    os.makedirs(SITE_PACKAGES / "_bin", exist_ok=True)
-    with open(PIP_CONF_PATH, "w") as f:
-        f.write(pip_config)
+        def remove_action_at_index(index):
+            defaults = NSUserDefaults.standardUserDefaults()
+            editoractions = get_actions()
+            del editoractions[index]
+            defaults.setObject_forKey_(editoractions, "EditorActionInfos")
+
+        def add_action(scriptName, iconName, iconColor, title):
+            defaults = NSUserDefaults.standardUserDefaults()
+            kwargs = locals()
+            entry = {
+                key: kwargs[key]
+                for key in ("scriptName", "iconName", "iconColor", "title", "arguments")
+                if key in kwargs and kwargs[key]
+            }
+            editoractions = get_actions()
+            editoractions.append(ns(entry))
+            defaults.setObject_forKey_(editoractions, "EditorActionInfos")
+
+        pipTerminal_action = {
+            "scriptName": "pipTerminal.py",
+            "title": "pipTerminal",
+            "iconColor": "000000",
+            "iconName": "Primaries_ChevronRight",
+        }
+
+        script_path = pipTerminal_action["scriptName"]
+        full_script_path = Path("~").expanduser() / "Documents" / script_path
+
+        if not full_script_path.exists():
+            raise FileNotFoundError(
+                f"Error: The 'pipTerminal' script was not found at {full_script_path}."
+            )
+
+        current_actions = get_actions()
+        script_names = [str(action["scriptName"]) for action in current_actions]
+
+        if script_path in script_names:
+            index_to_remove = script_names.index(script_path)
+            remove_action_at_index(index_to_remove)
+
+        add_action(**pipTerminal_action)
+        save_defaults()
+        print("Success: New 'pipTerminal' shortcut created.")
+
+    except Exception:
+        print(f"Unable to create 'pipTerminal' shortcut.")
 
 
 def installation_pipTerminal():
     with open(pipTerminal_DST, "w") as terminal:
-        terminal.write(
-            requests.get(pipTerminal_URL).content.decode(errors="ignore")
-        )
+        terminal.write(requests.get(pipTerminal_URL).content.decode(errors="ignore"))
 
 
 def installation_realpip():
@@ -58,14 +96,13 @@ def installation_realpip():
 
 
 def main():
-    print("Settingup pip conf file.........")
-    setting_pip()
-    print("Successful setting pip configration!")
     print("Save pipTerminal.........")
     installation_pipTerminal()
     print(f"Successful Save pipTerminal! save path: {pipTerminal_DST}")
     print("Install Real pip.........")
     installation_realpip()
+    print("Creating shortcut")
+    pin_shortcut()
     print("All Installation Done!")
     print("Please Restart Pythonista!")
 
