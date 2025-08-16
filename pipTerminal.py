@@ -44,19 +44,43 @@ def interp_dir_name():
 HOME = Path("~").expanduser()
 DOCUMENTS = HOME / "Documents"
 SITE_PACKAGES = DOCUMENTS / "site-packages"
+PREFIX_LIB = SITE_PACKAGES / "lib"
+PREFIX_DIR_NAME = f"python{sys.version_info.major}.{sys.version_info.minor}"
+PREFIX_SITE_PACKAGES = PREFIX_LIB / PREFIX_DIR_NAME / "site-packages"
+
 PIP_EXEC_CONTENT = """# -*- coding: utf-8 -*-
 import re
 import sys
 from pip._internal.cli.main import main
 
 if __name__ == '__main__':
-    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
-    if 'install' in sys.argv:
-        if not '-t' in sys.argv and not '--target' in sys.argv:
-            sys.argv.extend(['--target', '{TARGET}'])
-
-    sys.exit(main())
-""".format(TARGET=SITE_PACKAGES)
+    sys.argv[0] = re.sub(r"(-script\.pyw?|\.exe)?$", "", sys.argv[0])
+    if "install" in sys.argv:
+        if (
+            "--prefix" not in sys.argv 
+            and "--target" not in sys.argv
+        ):
+            sys.argv.extend([
+                "--prefix", "{PREFIX}"
+            ])
+        ret = 0
+        try:
+            ret = main()
+            shutil.copytree(
+                "{PREFIX_SITE_PACKAGES}",
+                "{PREFIX}", 
+                dirs_exist_ok=True
+            )          
+        finally:
+            shutil.rmtree("{PREFIX_LIB}")
+        sys.exit(ret)
+    else:
+        sys.exit(main())
+""".format(
+    PREFIX=SITE_PACKAGES, 
+    PREFIX_LIB=PREFIX_LIB,
+    PREFIX_SITE_PACKAGES=PREFIX_SITE_PACKAGES
+)
 
 
 class QRCodeView(object):
